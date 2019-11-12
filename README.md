@@ -1,4 +1,4 @@
-# nim_dcml
+# nim_dcml  encours
 decimal avec bornage pour conformiter avec SQL field definition
 
 C’est un projet qui s’appui sur Nim-decimal
