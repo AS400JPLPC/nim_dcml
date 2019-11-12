@@ -14,4 +14,4 @@ ainsi que  pour le soutient que j’ai eu dans le forum Nim.
 
 2.  j’ai été obligé de changer par rapport au projet initial les retours de valeurs et non pas le retour d’une nouvelle variable
 
-3. la partie disons normale qui sert en gestion sera conforme , reste la partie mathématique pour le moment je ne compte pas l’enlever … je vais voir à l’usure 
+3. la partie disons normale qui sert en gestion sera conforme , reste la partie mathématique est réduite au minimum
