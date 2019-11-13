@@ -6,7 +6,7 @@ je remercie l’équipe du très gros travail pour adapter qui est fait en c/c++
 
 https://github.com/status-im/nim-decimal
 
-ainsi que  pour le soutient que j’ai eu dans le forum Nim.
+et du soutient que j’ai eu dans le forum Nim.
 
 # Mon intervention consiste 
 
