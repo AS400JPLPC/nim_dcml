@@ -8,6 +8,7 @@
 import dcml_lowlevel
 import strformat
 from strutils import Digits, parseInt
+
 type
   DecimalType* = ref[ptr mpd_t]
   DecimalError* = object of Exception
@@ -114,7 +115,13 @@ proc newDecimal*(s: uint8 or uint16): DecimalType =
   result[] = mpd_qnew()
   mpd_set_u32(result[], uint32(s), CTX_ADDR)
 
-
+proc newDecimal*(f: float ): DecimalType =
+  ## Create a new DecimalType from a float
+  ## probleme occurs tih overflow 
+  var s: string = fmt"{f}"
+  new result, deleteDecimal
+  result[] = mpd_qnew()
+  mpd_set_string(result[], s, CTX_ADDR)
 
 proc clone*(b: DecimalType): DecimalType =
   ## Clone a DecimalType and returns a new independent one
@@ -132,7 +139,7 @@ proc `+`*(a, b: DecimalType)=
   var r = newDecimal()
   mpd_qadd(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `+`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a + newDecimal(b) 
@@ -143,7 +150,7 @@ proc `+=`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qadd(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `+=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a += newDecimal(b)
@@ -155,7 +162,7 @@ proc `-`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qsub(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `-`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a - newDecimal(b)
@@ -167,7 +174,7 @@ proc `-=`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qsub(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `-=`*[T: SomeNumber](a: DecimalType, b: T) =
   a -= newDecimal(b)
@@ -178,7 +185,7 @@ proc `*`*(a, b: DecimalType)=
   var r = newDecimal()
   mpd_qmul(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `*`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a * newDecimal(b)
@@ -189,7 +196,7 @@ proc `*=`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qmul(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `*=`*[T: SomeNumber](a: DecimalType, b: T) =
   a *= newDecimal(b)
@@ -201,7 +208,7 @@ proc `/`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qdiv(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `/`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a / newDecimal(b)
@@ -212,7 +219,7 @@ proc `/=`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qdiv(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `/=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a /= newDecimal(b)
@@ -224,7 +231,7 @@ proc `//`*(a, b: DecimalType)=
   var r = newDecimal()
   mpd_qdivint(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `//`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a // newDecimal(b)
@@ -235,7 +242,7 @@ proc `^`*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qpow(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 template `^`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a ^ newDecimal(b)
@@ -342,7 +349,7 @@ proc divint*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qdivint(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc rem*(a, b: DecimalType) =
   ## Returns the remainder of the division a/b
@@ -350,7 +357,7 @@ proc rem*(a, b: DecimalType) =
   var r = newDecimal()
   mpd_qrem(r[], a[], b[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc fma*(a, b, c: DecimalType) =
   ## Fused multiplication-addition, returns a * b + c
@@ -358,7 +365,7 @@ proc fma*(a, b, c: DecimalType) =
   var r = newDecimal()
   mpd_qfma(r[], a[], b[], c[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 
 
@@ -370,14 +377,14 @@ proc `-`*(a: DecimalType) =
   var r = newDecimal()
   mpd_qminus(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc plus*(a: DecimalType) =
   var status: uint32
   var r = newDecimal()
   mpd_qplus(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc abs*(a: DecimalType) =
   ## Absolute value
@@ -385,7 +392,7 @@ proc abs*(a: DecimalType) =
   var r = newDecimal()
   mpd_qabs(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 
 
@@ -396,7 +403,6 @@ proc reduce*(a: DecimalType) =
   var r = newDecimal()
   mpd_qreduce(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
 
 
 proc floor*(a: DecimalType) =
@@ -405,7 +411,7 @@ proc floor*(a: DecimalType) =
   var r = newDecimal()
   mpd_qfloor(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc ceil*(a: DecimalType) =
   ## Return the nearest integer towards +infinity
@@ -413,7 +419,7 @@ proc ceil*(a: DecimalType) =
   var r = newDecimal()
   mpd_qceil(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc truncate*(a: DecimalType) =
   ## Return the truncated value of a
@@ -421,7 +427,7 @@ proc truncate*(a: DecimalType) =
   var r = newDecimal()
   mpd_qtrunc(r[], a[], CTX_ADDR, addr status)
   a.copyData(r)
-  mpd_del(r[])
+
 
 proc finalize*(a: DecimalType) =
   ## Apply the current context to a
@@ -449,16 +455,18 @@ proc copyData*(a, b: DecimalType)=
 
 proc newDcml*( iEntier: uint8 ; iScale : uint8 ): DecimalType =
   ## Initialize a empty DecimalType
-  
+
   if iEntier + iScale  > cMaxDigit :
     raise newException(DecimalError, "Entier + Scale > cMaxDigit")
   else :
-    setPrec(parseInt(fmt"{cMaxDigit}") )
+    var i:int = parseInt(fmt"{cMaxDigit}")
+    setPrec(i)
     new result, deleteDecimal
     result[] = mpd_qnew()
+    result.fromString("0")
     result.entier = iEntier
     result.scale  = iScale
-    return result
+
 
 
 proc defDcml*( a: DecimalType ; iEntier: uint8 ; iScale : uint8 ) =
@@ -470,8 +478,8 @@ proc defDcml*( a: DecimalType ; iEntier: uint8 ; iScale : uint8 ) =
     a.entier = iEntier
     a.scale  = iScale
 
-proc delDecimal*(a: DecimalType) =
-    mpd_del(a[])
+proc delDcml*(a: DecimalType) =
+  mpd_del(a[])
 #---------------------------------------
 # ARRONDI comptable / commercial   
 # 5 => + 1   sinon trunc  
@@ -479,36 +487,27 @@ proc delDecimal*(a: DecimalType) =
 #---------------------------------------
 
 proc aRound*(a: DecimalType; iScale:int )=
-
+  var status: uint32
   CTX_CTRL = CTX_ADDR 
   CTX_CTRL.round = MPD_ROUND_HALF_UP
 
   var i:int
-  var sVal: string
-
-  var x= newDecimal("0")
+  var x= newDecimal()
   x.copyData(a)
-  
-    
+
   if iScale > 0 :
-    for i in 0..iScale :
-      x *= 10
+    
+    for i in 1..iScale :
+      x*=10
+    mpd_qround_to_intx(x[], x[], CTX_ADDR, addr status)
+    for i in 1..iScale :
+      x /= 10
 
-    mpd_round_to_intx(x[], x[], CTX_CTRL)
-
-    sVal = $x
-    i = sVal.len - 1
-
-    x /= 10
-    mpd_trunc(x[], x[], CTX_CTRL)
-    if sVal[i] > '4' : 
-      for i in 1..iScale :
-       x /= 10
   else:
-    mpd_trunc(x[], a[], CTX_CTRL)
+    x.floor()
 
   a.copyData(x)
-  mpd_del(x[])
+
 
 
 
@@ -533,10 +532,10 @@ proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit :
     return true
   
-  var x= newDecimal("0")
+  var x= newDecimal()
   mpd_trunc(x[], a[], CTX_CTRL)
   sEntier= $x
-  mpd_del(x[])
+
 
   i = sEntier.len
 
@@ -547,7 +546,7 @@ proc isErr*(a: DecimalType):bool =
   elif 1 == mpd_iszero(x[]) :
     i = 0
 
-  if i > parseInt(fmt"{a.entier}") :
+  if i > int(a.scale) :
     return true
   else : 
     return false
@@ -560,65 +559,55 @@ proc isErr*(a: DecimalType):bool =
 #---------------------------------------
 
 proc Valide*(a: DecimalType) =
-  ## Convert DecimalType to string
+  # controle dépassement capacité
+  if (a.entier + a.scale) > cMaxDigit :
+    raise newException(DecimalError, "Overlay Digit 38 max")
 
   CTX_CTRL = CTX_ADDR 
   CTX_CTRL.round = MPD_ROUND_05UP
 
+  var iEntier:int = int(a.entier)
+
+  var iScale:int = int(a.scale)
 
   var sEntier:string
+
   var i:int 
 
-  # controle dépassement capacité
-  if (a.entier + a.scale) > cMaxDigit :
-    raise newException(DecimalError, "Overlay Digit 38 max")
-  
+  var x= newDecimal($a)
+
   # control partie entiere
-  
-  var x= newDecimal("0")
-  mpd_trunc(x[], a[], CTX_CTRL)
+
+  x.floor()
 
   sEntier= $x
+  
   i = sEntier.len
 
-  if '-' == sEntier[0] :
-    i-= 1
-  elif '+' == sEntier[0] :
+  if '-' == sEntier[0] or '+' == sEntier[0] :
     i-= 1
   elif 1 == mpd_iszero(x[]) :
     i = 0
 
-
-  if i > parseInt(fmt"{a.entier}") :
+  if i > iEntier :
     raise newException(DecimalError, "Overlay Digit") 
-
 
   # formatages 
   # suppression des digits scale en trop  
   # printf .00 etc...
-  
-  var iScale = parseInt(fmt"{a.scale}")
-  
+
   if iScale != 0 :
     if x == a :
       sEntier= fmt"{sEntier}."
       for i in 1..iScale :
         sEntier = fmt"{sEntier}0"
-
-      x = newDecimal(sEntier)
+      x.fromString(sEntier)
     else :
-      
       x.copyData(a)
       for i in 1..iScale :
         x *= 10
-      mpd_trunc(x[], x[], CTX_ADDR)
+      x.truncate()
       for i in 1..iScale :
         x /= 10
-
-  else:
-    x.fromString(sEntier)
-  
   a.copyData(x)
-  mpd_del(x[])
-
 #@@@@@@@@@@@@@@@@@@

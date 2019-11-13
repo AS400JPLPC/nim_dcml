@@ -25,9 +25,12 @@ echo  fmt"a+=10  {$a}  Entier  {a.entier} Scale {a.scale}"
 a-10
 echo  fmt"a-10   {$a}  Entier  {a.entier} Scale {a.scale}"
 a-=10
+
+
 echo  fmt"a-=10  {$a}  Entier  {a.entier} Scale {a.scale}"
 a*10
 echo  fmt"a*10   {$a}  Entier  {a.entier} Scale {a.scale}"
+
 a*=10
 echo  fmt"a*=10  {$a}  Entier  {a.entier} Scale {a.scale}"
 
@@ -119,12 +122,13 @@ except:
 
 
 a.fromString("123")
+
 try:
   echo  " 123 --- newDcml(20,2)"
   a.Valide
   echo  $a
   a.aRound(0) 
-  echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
+  echo  fmt"  a.aRound(0)  {$a}  Entier  {a.entier} Scale {a.scale}"
 except:
   let
     msg = getCurrentExceptionMsg()
@@ -146,6 +150,7 @@ except:
 
 
 a.fromString("0.12")
+echo $a
 try:
   echo  "0.12--- newDcml(20,2)"
   a.Valide()
@@ -154,7 +159,6 @@ except:
   let
     msg = getCurrentExceptionMsg()
   echo "Got exception ", msg
-
 
 a.fromString("0.123456")
 try:
@@ -167,7 +171,9 @@ except:
   echo "Got exception ", msg
 
 
+
 a.fromString("-321")
+echo fmt" ----------------------a {$a}"
 try:
   echo  "-321---- newDcml(20,2)"
   a.Valide()
@@ -190,20 +196,63 @@ except:
 
 
 echo "----------"
-echo  "---a = newDcml(4,0)"
+echo  "---a = newDcml(4,0)   199"
 a = newDcml(4,0)
 a.fromString("5000.68494")
-echo $a
+echo "202"
 a.aRound(3)
 echo  fmt"a.aRound(3) {$a}  Entier  {a.entier} Scale {a.scale}"
+echo "204"
+
 a.Valide()
 echo  fmt"a.Valide() {$a}  Entier  {a.entier} Scale {a.scale} "
 echo "----------"
 
 
 a.fromString("5000.68654")
-echo "---$$$$$$---"
+echo "---$$$$$$  a.fromString(\"5000.68654\")  ---"
+echo $a
+echo  fmt"{$a}   isErr  {a.isErr()}    entier  {a.entier} scale {a.scale}"
 a.Valide()
 
 echo  fmt"{$a}   isErr  {a.isErr()}    entier  {a.entier} scale {a.scale}"
 echo "---$$$$$$---"
+
+echo "----------"
+echo  "---nx = newDcml(4,0)"
+var nx = newDcml(4,0)
+nx.fromString("5000.68494")
+echo $nx
+nx.aRound(3)
+echo  fmt"nx.aRound(3) {$nx}  Entier  {nx.entier} Scale {nx.scale}"
+nx.Valide()
+echo  fmt"nx.Valide() {$nx}  Entier  {nx.entier} Scale {nx.scale} "
+
+
+
+
+
+type Person = object
+  nom: string
+  salair: DecimalType 
+
+
+
+var prs : Person
+prs.salair=newDcml(20,2)
+
+
+
+
+
+prs.salair.fromString("19000")
+prs.nom = "JP"
+
+echo fmt"{$prs.salair}"
+
+prs.salair+=float(1000000.95)
+echo fmt"{$prs.salair} {prs.salair.entier} {prs.salair.scale}  "
+
+prs.salair.Valide()
+
+echo fmt"{$prs.salair} {prs.salair.entier} {prs.salair.scale}  "
