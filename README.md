@@ -2,7 +2,7 @@
 decimal avec bornage pour conformiter avec SQL field definition
 
 C’est un projet qui s’appui sur Nim-decimal
-je remercie l’équipe du très gros travail pour adapter ce qui ce fait en c/c++ en Nim
+je remercie l’équipe du très gros travail pour adapter ce qui ce fait en c/c++ pour Nim-lang
 
 https://github.com/status-im/nim-decimal
 
