@@ -485,32 +485,30 @@ proc aRound*(a: DecimalType; iScale:int )=
 
   var i:int
   var sVal: string
-  var up:bool = false
 
-  var r= newDecimal("0")
-
+  var x= newDecimal("0")
+  x.copyData(a)
   
     
   if iScale > 0 :
-    r.copyData(a)
     for i in 0..iScale :
-      r *= 10
+      x *= 10
 
-    mpd_round_to_intx(r[], a[], CTX_CTRL)
+    mpd_round_to_intx(x[], x[], CTX_CTRL)
 
-    sVal = $r
+    sVal = $x
     i = sVal.len - 1
 
-    r /= 10
-    mpd_trunc(r[], r[], CTX_CTRL)
+    x /= 10
+    mpd_trunc(x[], x[], CTX_CTRL)
     if sVal[i] > '4' : 
-      r += 1
-    for i in 1..iScale :
-      r /= 10
+      for i in 1..iScale :
+       x /= 10
+  else:
+    mpd_trunc(x[], a[], CTX_CTRL)
 
-    a.copyData(r)
-
-  mpd_del(r[])
+  a.copyData(x)
+  mpd_del(x[])
 
 
 
@@ -535,10 +533,10 @@ proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit :
     return true
   
-  var r= newDecimal("0")
-  mpd_trunc(r[], a[], CTX_CTRL)
-  sEntier= $r
-  mpd_del(r[])
+  var x= newDecimal("0")
+  mpd_trunc(x[], a[], CTX_CTRL)
+  sEntier= $x
+  mpd_del(x[])
 
   i = sEntier.len
 
@@ -546,7 +544,7 @@ proc isErr*(a: DecimalType):bool =
     i-= 1
   elif '+' == sEntier[0] :
     i-= 1
-  elif 1 == mpd_iszero(r[]) :
+  elif 1 == mpd_iszero(x[]) :
     i = 0
 
   if i > parseInt(fmt"{a.entier}") :
@@ -577,17 +575,17 @@ proc Valide*(a: DecimalType) =
   
   # control partie entiere
   
-  var r= newDecimal("0")
-  mpd_trunc(r[], a[], CTX_CTRL)
+  var x= newDecimal("0")
+  mpd_trunc(x[], a[], CTX_CTRL)
 
-  sEntier= $r
+  sEntier= $x
   i = sEntier.len
 
   if '-' == sEntier[0] :
     i-= 1
   elif '+' == sEntier[0] :
     i-= 1
-  elif 1 == mpd_iszero(r[]) :
+  elif 1 == mpd_iszero(x[]) :
     i = 0
 
 
@@ -600,23 +598,27 @@ proc Valide*(a: DecimalType) =
   # printf .00 etc...
   
   var iScale = parseInt(fmt"{a.scale}")
-
+  
   if iScale != 0 :
-    if r == a :
+    if x == a :
       sEntier= fmt"{sEntier}."
       for i in 1..iScale :
         sEntier = fmt"{sEntier}0"
 
-      r = newDecimal(sEntier)
+      x = newDecimal(sEntier)
     else :
-      r.copyData(a)
+      
+      x.copyData(a)
       for i in 1..iScale :
-        r *= 10
-      mpd_trunc(r[], r[], CTX_ADDR)
+        x *= 10
+      mpd_trunc(x[], x[], CTX_ADDR)
       for i in 1..iScale :
-        r /= 10
+        x /= 10
 
-  a.copyData(r)
-  mpd_del(r[])
+  else:
+    x.fromString(sEntier)
+  
+  a.copyData(x)
+  mpd_del(x[])
 
 #@@@@@@@@@@@@@@@@@@
