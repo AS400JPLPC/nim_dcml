@@ -129,10 +129,10 @@ proc clone*(b: DecimalType): DecimalType =
 
 proc `+`*(a, b: DecimalType)=
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qadd(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qadd(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `+`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a + newDecimal(b) 
@@ -140,10 +140,10 @@ template `+`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `+=`*(a, b: DecimalType) =
   ## Inplace addition
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qadd(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qadd(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `+=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a += newDecimal(b)
@@ -152,10 +152,10 @@ template `+=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 
 proc `-`*(a, b: DecimalType) =
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qsub(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qsub(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `-`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a - newDecimal(b)
@@ -164,10 +164,10 @@ template `-`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `-=`*(a, b: DecimalType) =
   ## Inplace subtraction
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qsub(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qsub(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `-=`*[T: SomeNumber](a: DecimalType, b: T) =
   a -= newDecimal(b)
@@ -175,10 +175,10 @@ template `-=`*[T: SomeNumber](a: DecimalType, b: T) =
 
 proc `*`*(a, b: DecimalType)=
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qmul(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qmul(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `*`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a * newDecimal(b)
@@ -186,10 +186,10 @@ template `*`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `*=`*(a, b: DecimalType) =
   ## Inplace multiplication
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qmul(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qmul(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `*=`*[T: SomeNumber](a: DecimalType, b: T) =
   a *= newDecimal(b)
@@ -198,10 +198,10 @@ template `*=`*[T: SomeNumber](a: DecimalType, b: T) =
 
 proc `/`*(a, b: DecimalType) =
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qdiv(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qdiv(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `/`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a / newDecimal(b)
@@ -209,10 +209,10 @@ template `/`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `/=`*(a, b: DecimalType) =
   ## Inplace division
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qdiv(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qdiv(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `/=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a /= newDecimal(b)
@@ -221,10 +221,10 @@ template `/=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `//`*(a, b: DecimalType)=
   ## Integer division, same as divint
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qdivint(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qdivint(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `//`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a // newDecimal(b)
@@ -232,10 +232,10 @@ template `//`*[T: SomeNumber](a: DecimalType, b: T): untyped =
 proc `^`*(a, b: DecimalType) =
   ## Power operator
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qpow(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qpow(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 template `^`*[T: SomeNumber](a: DecimalType, b: T): untyped =
   a ^ newDecimal(b)
@@ -339,26 +339,26 @@ template `>=`*[T: SomeNumber](a: T, b: DecimalType): untyped =
 proc divint*(a, b: DecimalType) =
   ## Integer division, same ass //
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qdivint(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qdivint(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc rem*(a, b: DecimalType) =
   ## Returns the remainder of the division a/b
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qrem(a[], x[], b[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qrem(r[], a[], b[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc fma*(a, b, c: DecimalType) =
   ## Fused multiplication-addition, returns a * b + c
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qfma(a[], x[], b[], c[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qfma(r[], a[], b[], c[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 
 
@@ -367,25 +367,25 @@ proc fma*(a, b, c: DecimalType) =
 proc `-`*(a: DecimalType) =
   ## Negation operator
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qminus(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qminus(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc plus*(a: DecimalType) =
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qplus(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qplus(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc abs*(a: DecimalType) =
   ## Absolute value
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qabs(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qabs(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 
 
@@ -393,35 +393,35 @@ proc abs*(a: DecimalType) =
 proc reduce*(a: DecimalType) =
   ## If a is finite after applying rounding and overflow/underflow checks, result is set to the simplest form of a with all trailing zeros removed
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qreduce(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qreduce(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 
 proc floor*(a: DecimalType) =
   ## Return the nearest integer towards -infinity
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qfloor(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qfloor(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc ceil*(a: DecimalType) =
   ## Return the nearest integer towards +infinity
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qceil(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qceil(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc truncate*(a: DecimalType) =
   ## Return the truncated value of a
   var status: uint32
-  var x = newDecimal()
-  x.copyData(a)
-  mpd_qtrunc(a[], x[], CTX_ADDR, addr status)
-  mpd_del(x[])
+  var r = newDecimal()
+  mpd_qtrunc(r[], a[], CTX_ADDR, addr status)
+  a.copyData(r)
+  mpd_del(r[])
 
 proc finalize*(a: DecimalType) =
   ## Apply the current context to a
@@ -436,8 +436,10 @@ proc finalize*(a: DecimalType) =
 # arrivé decimal SQL  FromString 
 #----------------------------------------------------
 
-proc fromString*(a: DecimalType; sVal: string )  =
+proc fromString*(a: DecimalType;  pVal: string )  =
   ## set value from a string
+  var sVal :string  = pval
+  if (sVal == ""):  sVal="0"
   mpd_set_string(a[], sVal, CTX_ADDR)
 
 
@@ -485,30 +487,31 @@ proc aRound*(a: DecimalType; iScale:int )=
   var sVal: string
   var up:bool = false
 
-  var x= newDecimal("0")
+  var r= newDecimal("0")
 
   
     
   if iScale > 0 :
-    x = a
+    r.copyData(a)
     for i in 0..iScale :
-      x *= 10
+      r *= 10
 
-    mpd_round_to_intx(x[], x[], CTX_CTRL)
+    mpd_round_to_intx(r[], a[], CTX_CTRL)
 
-    sVal = $x
+    sVal = $r
     i = sVal.len - 1
 
-    x /= 10
-    mpd_trunc(x[], x[], CTX_CTRL)
+    r /= 10
+    mpd_trunc(r[], r[], CTX_CTRL)
     if sVal[i] > '4' : 
-      x += 1
+      r += 1
     for i in 1..iScale :
-      x /= 10
-  else:
-    x = a
+      r /= 10
 
-  a.fromString($x)
+    a.copyData(r)
+
+  mpd_del(r[])
+
 
 
 
@@ -532,16 +535,18 @@ proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit :
     return true
   
-  var x= newDecimal("0")
-  mpd_trunc(x[], a[], CTX_CTRL)
-  sEntier= $x
+  var r= newDecimal("0")
+  mpd_trunc(r[], a[], CTX_CTRL)
+  sEntier= $r
+  mpd_del(r[])
+
   i = sEntier.len
 
   if '-' == sEntier[0] :
     i-= 1
   elif '+' == sEntier[0] :
     i-= 1
-  elif 1 == mpd_iszero(x[]) :
+  elif 1 == mpd_iszero(r[]) :
     i = 0
 
   if i > parseInt(fmt"{a.entier}") :
@@ -572,17 +577,17 @@ proc Valide*(a: DecimalType) =
   
   # control partie entiere
   
-  var x= newDecimal("0")
-  mpd_trunc(x[], a[], CTX_CTRL)
+  var r= newDecimal("0")
+  mpd_trunc(r[], a[], CTX_CTRL)
 
-  sEntier= $x
+  sEntier= $r
   i = sEntier.len
 
   if '-' == sEntier[0] :
     i-= 1
   elif '+' == sEntier[0] :
     i-= 1
-  elif 1 == mpd_iszero(x[]) :
+  elif 1 == mpd_iszero(r[]) :
     i = 0
 
 
@@ -597,20 +602,21 @@ proc Valide*(a: DecimalType) =
   var iScale = parseInt(fmt"{a.scale}")
 
   if iScale != 0 :
-    if x == a :
+    if r == a :
       sEntier= fmt"{sEntier}."
       for i in 1..iScale :
         sEntier = fmt"{sEntier}0"
 
-      x = newDecimal(sEntier)
+      r = newDecimal(sEntier)
     else :
-      x = a
+      r.copyData(a)
       for i in 1..iScale :
-        x *= 10
-      mpd_trunc(x[], x[], CTX_ADDR)
+        r *= 10
+      mpd_trunc(r[], r[], CTX_ADDR)
       for i in 1..iScale :
-        x /= 10
+        r /= 10
 
-  a.fromString($x)
+  a.copyData(r)
+  mpd_del(r[])
 
 #@@@@@@@@@@@@@@@@@@
