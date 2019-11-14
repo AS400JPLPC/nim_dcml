@@ -14,7 +14,7 @@ https://github.com/status-im/nim-decimal
 
 et du soutient que j’ai eu dans le forum Nim.
 
-# Mon intervention consiste 
+- Mon intervention consiste 
 
 1. Définir la décimal newDcml( iEntier ; iScale) pour borner et ainsi respecter la définition des zones dcml(x,y) dans SQL 
 
