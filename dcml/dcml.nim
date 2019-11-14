@@ -7,7 +7,7 @@
 
 import dcml_lowlevel
 import strformat
-from strutils import Digits, parseInt
+from strutils import Digits, parseInt,replace , repeat , isDigit
 
 type
   DecimalType* = ref[ptr mpd_t]
@@ -57,9 +57,24 @@ proc newDecimal*(): DecimalType =
 
 proc newDecimal*(s: string): DecimalType =
   ## Create a new DecimalType from a string
+  var sVal:string = s
+  #correction valeur par defaut
+  if (sVal == "") :  sVal="0"
+  sVal = sVal.replace("+","" )
+  sVal = sVal.replace("-","" )
+  sVal = sVal.replace(".","" )
+  if sVal.isDigit() == false  or s == ".":  
+    raise newException(DecimalError, "Decimal failed to newDecimal(String)")
+
+  sVal =s
+  if (sVal == "") :  sVal="0"
+  elif sVal[0] == '.' and len(sVal) > 1: sVal = fmt"0{sval}"
+
   new result, deleteDecimal
   result[] = mpd_qnew()
-  mpd_set_string(result[], s, CTX_ADDR)
+  mpd_set_string(result[], sVal, CTX_ADDR)
+
+
 
 proc newDecimal*(s: int): DecimalType =
   ## Create a new DecimalType from an int
@@ -444,8 +459,20 @@ proc finalize*(a: DecimalType) =
 
 proc fromString*(a: DecimalType;  pVal: string )  =
   ## set value from a string
-  var sVal :string  = pval
-  if (sVal == ""):  sVal="0"
+  var sVal :string
+
+  #correction valeur par defaut
+  sVal = pVal
+  if (sVal == "") :  sVal="0"
+  sVal = sVal.replace("+","" )
+  sVal = sVal.replace("-","" )
+  sVal = sVal.replace(".","" )
+  if sVal.isDigit() == false  or pVal == ".":  
+    raise newException(DecimalError, "Decimal failed to fromString")
+  sVal =pVal
+  if (sVal == "") :  sVal="0"
+  elif sVal[0] == '.' and len(sVal) > 1: sVal = fmt"0{sval}"
+
   mpd_set_string(a[], sVal, CTX_ADDR)
 
 
@@ -453,11 +480,14 @@ proc copyData*(a, b: DecimalType)=
   var status: uint32
   mpd_copy_data(a[],b[],addr status)
 
+
+
+
 proc newDcml*( iEntier: uint8 ; iScale : uint8 ): DecimalType =
   ## Initialize a empty DecimalType
 
-  if iEntier + iScale  > cMaxDigit :
-    raise newException(DecimalError, "Entier + Scale > cMaxDigit")
+  if iEntier + iScale  > cMaxDigit or ( iEntier == 0 and iScale == 0 ):
+    raise newException(DecimalError, "Entier + Scale > cMaxDigit / Invalide")
   else :
     var i:int = parseInt(fmt"{cMaxDigit}")
     setPrec(i)
@@ -523,32 +553,65 @@ proc isErr*(a: DecimalType):bool =
   CTX_CTRL = CTX_ADDR 
   CTX_CTRL.round = MPD_ROUND_05UP
 
+  var iEntier:int = int(a.entier)
   var iScale:int = int(a.scale)
-  var iMax:int = int(a.entier + a.scale)
-  var sNumber:string
-  var i:int
+  var sNumber:string = $a
+  var iMax:int =  iEntier + iScale
+  var iLen:int =  sNumber.len()
 
-  if (a.entier + a.scale) > cMaxDigit :
-    return true
-  
-  sNumber= $a
-
-  i = sNumber.len
-
+  if iEntier == 0 : 
+    iMax = iMax + 1
+    iLen = iLen - 1
+  if sNumber.find('-') > -1 : 
+    iMax = iMax - 1
+    iLen = iLen - 1 
+  if sNumber.find('+') > -1 :
+    iMax = iMax - 1
+    iLen = iLen - 1
   if sNumber.find('.') > -1 :
-    i-= 1
+    iMax = iMax - 1
+    iLen = iLen - 1
 
-  if '-' == sNumber[0] :
-    i-= 1
-  elif '+' == sNumber[0] :
-    i-= 1
-  elif 1 == mpd_iszero(a[]) :
-    i = 0
 
-  if i > iMax :
+  if iMax > int(cMaxDigit)  or iMax < iLen:
     return true
   else : 
     return false
+
+
+#---------------------------------------
+# formatage 
+# alustement rigth zeros
+#---------------------------------------
+proc ajustRzeros*(a: DecimalType)=
+  let padding = '0'
+  var iEntier:int = int(a.entier)
+  var iScale:int = int(a.scale)
+  var iMax:int =  iEntier + iScale
+  var sNumber:string = $a
+  var iLen: int = sNumber.len()
+
+  if iEntier == 0 : 
+    iMax = iMax + 1
+    iLen = iLen - 1
+
+  if sNumber.find('-') > -1 : 
+    iMax = iMax - 1
+    iLen = iLen - 1 
+
+  if sNumber.find('+') > -1 :
+    iMax = iMax - 1
+    iLen = iLen - 1
+
+  if sNumber.find('.') > -1 :
+    iMax = iMax - 1
+    iLen = iLen - 1
+
+  if iLen < iMax:
+    sNumber.add(padding.repeat(iMax-iLen))
+
+  a.fromstring(sNumber)
+
 
 
 #---------------------------------------
@@ -565,27 +628,28 @@ proc Valide*(a: DecimalType) =
   CTX_CTRL = CTX_ADDR 
   CTX_CTRL.round = MPD_ROUND_05UP
 
+
+
   var iEntier:int = int(a.entier)
 
   var iScale:int = int(a.scale)
 
   var sEntier:string
 
-  var i:int 
-
+  var i , d :int 
   var x= newDecimal($a)
-
+  
   # control partie entiere
 
   x.floor()
 
   sEntier= $x
-  
+  sEntier = sEntier.replace("+","" )
+  sEntier = sEntier.replace("-","" )
   i = sEntier.len
 
-  if '-' == sEntier[0] or '+' == sEntier[0] :
-    i-= 1
-  elif 1 == mpd_iszero(x[]) :
+  # dcml(0.x) on ne compte pas si 0 entier
+  if i == 1 and  sEntier[0] == '0':
     i = 0
 
   if i > iEntier :
@@ -608,5 +672,7 @@ proc Valide*(a: DecimalType) =
       x.truncate()
       for i in 1..iScale :
         x /= 10
+  
   a.copyData(x)
+  a.ajustRzeros()
 #@@@@@@@@@@@@@@@@@@

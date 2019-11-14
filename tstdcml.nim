@@ -4,9 +4,10 @@ import strformat
 
 var a = newDcml(20,2)
 
-a.fromString("12345678901234567890.1234")
-echo $a ,"---", $a
+
 try:
+  a.fromString("12345678901234567890.1234")
+  echo $a ,"---", $a
   echo  "--- newDcml(20,2)"
   a.Valide()
   echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
@@ -42,8 +43,8 @@ echo  fmt"a/=10  {$a}  Entier  {a.entier} Scale {a.scale}"
 
 
 var b = newDcml(3,1)
-b.fromString("123.4")
 try:
+  b.fromString("123.4")
   echo  "--- Valide(3,1)  max 38"
   b.Valide()
   echo  fmt"{$b}  Entier  {b.entier} Scale {b.scale}"
@@ -96,8 +97,8 @@ echo  fmt" b^(x)  31 ^ {$x} = {$b}  "
 
 
 b = newDcml(34,4)
-b.fromString("-1234567890123456789012345678901234.1234")
 try:
+  b.fromString("-1234567890123456789012345678901234.1234")
   echo  "--- Valide(34,4)  max 38"
   b.Valide()
   echo  fmt"{$b}  Entier  {b.entier} Scale {b.scale}"
@@ -109,8 +110,8 @@ except:
 
 
 var c = newDcml(15,1)
-c.fromString("123456789012345.1234")
 try:
+  c.fromString("123456789012345.1234")
   echo  "--- newDcml(15,1)"
   c.Valide()
   echo  fmt"{$c}  Entier  {c.entier} Scale {c.scale}"
@@ -119,11 +120,8 @@ except:
     msg = getCurrentExceptionMsg()
   echo "Got exception ", msg
 
-
-
-a.fromString("123")
-
 try:
+  a.fromString("123")
   echo  " 123 --- newDcml(20,2)"
   a.Valide
   echo  $a
@@ -137,8 +135,8 @@ except:
 
 
 
-a.fromString("321.0")
 try:
+  a.fromString("321.0")
   echo  "321.0--- newDcml(20,2)"
   a.Valide()
   echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
@@ -149,9 +147,9 @@ except:
 
 
 
-a.fromString("0.12")
-echo $a
+
 try:
+  a.fromString("0.12")
   echo  "0.12--- newDcml(20,2)"
   a.Valide()
   echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
@@ -160,8 +158,9 @@ except:
     msg = getCurrentExceptionMsg()
   echo "Got exception ", msg
 
-a.fromString("0.123456")
+
 try:
+  a.fromString("0.123456")
   echo  "0.123456---a.aRound(3)"
   a.aRound(3)
   echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
@@ -172,9 +171,10 @@ except:
 
 
 
-a.fromString("-321")
-echo fmt" ----------------------a {$a}"
+
 try:
+  a.fromString("-321")
+  echo fmt" ----------------------a {$a}"
   echo  "-321---- newDcml(20,2)"
   a.Valide()
   echo  fmt"{$a}  Entier  {a.entier} Scale {a.scale}"
@@ -184,8 +184,9 @@ except:
   echo "Got exception ", msg
   
 
-a.fromString("5000.69874")
+
 try:
+  a.fromString("5000.69874")
   echo  "---  5000.69874  a.aRound(0) newDcml(20,2)"
   a.aRound(0)
   echo  fmt"a.aRound(0) {$a}  Entier  {a.entier} Scale {a.scale}"
@@ -208,9 +209,10 @@ a.Valide()
 echo  fmt"a.Valide() {$a}  Entier  {a.entier} Scale {a.scale} "
 echo "----------"
 
-var d = newDcml(3,0)
-d.fromString("333.0")
+
 try:
+  var d = newDcml(3,0)
+  d.fromString("333.0")
   echo  "333--- newDcml(3,0)"
   echo  fmt"{$d}   isErr  {d.isErr()}    entier  {d.entier} scale {d.scale}"
   if d.isErr() :
@@ -221,6 +223,21 @@ except:
     msg = getCurrentExceptionMsg()
   echo "Got exception ", msg
 
+
+try:
+  var e = newDcml(0,2)
+  e.fromString(".1")
+  e.ajustRzeros()
+  echo $e
+  echo  "0--- newDcml(0,2)"
+  echo  fmt"{$e}   isErr  {e.isErr()}    entier  {e.entier} scale {e.scale}"
+
+  e.Valide()
+  echo  fmt"{$e}   isErr  {e.isErr()}    entier  {e.entier} scale {e.scale}"
+except:
+  let 
+    msg = getCurrentExceptionMsg()
+  echo "Got exception ", msg
 
 a.fromString("5000.68654")
 echo "---$$$$$$  a.fromString(\"5000.68654\")  ---"
@@ -269,3 +286,13 @@ echo fmt"{$prs.salair} {prs.salair.entier} {prs.salair.scale}  "
 prs.salair.Valide()
 
 echo fmt"{$prs.salair} {prs.salair.entier} {prs.salair.scale}  "
+
+
+
+
+try:
+  var  f: DecimalType = newDecimal("aa")
+  echo " OK   f"
+except:
+  let msg = getCurrentExceptionMsg()
+  echo "Got exception ", msg
