@@ -1,4 +1,10 @@
-# nim_dcml  en TEST
+# nim_dcml
+
+# en test 
+
+# date de mise a jour 2019/11/12
+
+
 decimal avec bornage pour conformiter avec SQL field definition
 
 C’est un projet qui s’appui sur Nim-decimal
@@ -14,4 +20,10 @@ et du soutient que j’ai eu dans le forum Nim.
 
 2. j’ai été obligé de changer par rapport au projet initial les retours de valeurs et non pas le retour d’une nouvelle variable
 
-3. la partie disons normale qui sert en gestion sera conforme , reste la partie mathématique est réduite au minimum
+3. la partie disons normale qui sert en gestion sera conforme , la partie mathématique est réduite au minimum
+
+4. Formatage avec justification last zero
+
+5. Contrôle des entrées String
+
+6. Prise en compte de Float
