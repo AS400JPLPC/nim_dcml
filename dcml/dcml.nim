@@ -514,39 +514,38 @@ proc aRound*(a: DecimalType; iScale:int )=
 
 #---------------------------------------
 # contrôle len buffer and caractéristique  
-# longueur entier et decimal pour les controles de valeur maxi mini 
-# maximun 38 digits     PAS D'ARRONDI
+# maximun 38 digits
 #---------------------------------------
 
 proc isErr*(a: DecimalType):bool =
-  ## Convert DecimalType to string
+  ## contrôle dépassement capacité
 
   CTX_CTRL = CTX_ADDR 
   CTX_CTRL.round = MPD_ROUND_05UP
 
-
-  var sEntier:string
+  var iScale:int = int(a.scale)
+  var iMax:int = int(a.entier + a.scale)
+  var sNumber:string
   var i:int
 
-  # controle dépassement capacité
   if (a.entier + a.scale) > cMaxDigit :
     return true
   
-  var x= newDecimal()
-  mpd_trunc(x[], a[], CTX_CTRL)
-  sEntier= $x
+  sNumber= $a
 
+  i = sNumber.len
 
-  i = sEntier.len
-
-  if '-' == sEntier[0] :
+  if sNumber.find('.') > -1 :
     i-= 1
-  elif '+' == sEntier[0] :
+
+  if '-' == sNumber[0] :
     i-= 1
-  elif 1 == mpd_iszero(x[]) :
+  elif '+' == sNumber[0] :
+    i-= 1
+  elif 1 == mpd_iszero(a[]) :
     i = 0
 
-  if i > int(a.scale) :
+  if i > iMax :
     return true
   else : 
     return false

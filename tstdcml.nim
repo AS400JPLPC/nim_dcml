@@ -208,6 +208,19 @@ a.Valide()
 echo  fmt"a.Valide() {$a}  Entier  {a.entier} Scale {a.scale} "
 echo "----------"
 
+var d = newDcml(3,0)
+d.fromString("333.0")
+try:
+  echo  "333--- newDcml(3,0)"
+  echo  fmt"{$d}   isErr  {d.isErr()}    entier  {d.entier} scale {d.scale}"
+  if d.isErr() :
+    d.Valide()
+  echo  fmt"{$d}   isErr  {d.isErr()}    entier  {d.entier} scale {d.scale}"
+except:
+  let 
+    msg = getCurrentExceptionMsg()
+  echo "Got exception ", msg
+
 
 a.fromString("5000.68654")
 echo "---$$$$$$  a.fromString(\"5000.68654\")  ---"
