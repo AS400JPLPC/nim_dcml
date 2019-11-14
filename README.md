@@ -2,7 +2,7 @@
 
 # en test 
 
-# date de mise a jour 2019/11/12
+- date de mise a jour 2019/11/12
 
 
 decimal avec bornage pour conformiter avec SQL field definition
