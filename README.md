@@ -1,5 +1,6 @@
 # nim_dcml
 
+- démarage projet 2019/11/05
 # en test 
 
 - date de mise a jour 2019/11/12
