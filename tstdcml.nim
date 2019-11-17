@@ -40,6 +40,52 @@ a^b
 echo fmt"a^b {$a}"
 
 
+a.setDcml("10")
+
+echo fmt" a==b  {a==b}"
+echo fmt" a==10 {a==10}"
+echo fmt" 10==a {10==a}"
+
+echo fmt" a<b   {a<b}"
+echo fmt" a<10  {a<10}"
+echo fmt" a<b   {a<b}"
+
+echo fmt" a<=b  {a<=b}"
+echo fmt" 10<=a {10<=a}"
+echo fmt" a<=10 {a<=10}"
+
+echo fmt" a>b   {a>b}"
+echo fmt" a>10  {a<10}"
+echo fmt" a>b   {a>b}"
+
+echo fmt" a>=b  {a>=b}"
+echo fmt" 10>=a {10<=a}"
+echo fmt" a>=10 {a<=10}"
+
+a.setDcml("1")
+
+echo fmt" a==b  {a==b}"
+echo fmt" a==10 {a==10}"
+echo fmt" 10==a {10==a}"
+
+echo fmt" a<b   {a<b}"
+echo fmt" a<10  {a<10}"
+echo fmt" a<b   {a<b}"
+
+echo fmt" a<=b  {a<=b}"
+echo fmt" 10<=a {10<=a}"
+echo fmt" a<=10 {a<=10}"
+
+echo fmt" a>b   {a>b}"
+echo fmt" a>10  {a<10}"
+echo fmt" a>b   {a>b}"
+
+echo fmt" a>=b  {a>=b}"
+echo fmt" 10>=a {10<=a}"
+echo fmt" a>=10 {a<=10}"
+
+
+
 
 
 delDcml(a)

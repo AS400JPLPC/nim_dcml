@@ -442,11 +442,85 @@ proc `==`*(a, b: DecimalType): bool =
   else:
     return false
 
-template `==`*[T: SomeNumber](a: DecimalType, b: T): untyped =
-  a == newDecimal(b)
+template `==`*[T: SomeNumber](a: DecimalType, x: T):bool=
+  var n = x
 
-template `==`*[T: SomeNumber](a: T, b: DecimalType): untyped =
-  newDecimal(a) == b
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+      b.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération ==")
+  a == b
+
+template `==`*[T: SomeNumber](x: T, b: DecimalType):bool =
+  var n = x
+
+  var a:DecimalType
+  new a, deleteDecimal
+  a[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(a[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(a[], s, CTX_ADDR)
+      a.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération ==")
+  a == b
 
 
 
@@ -458,10 +532,85 @@ proc `<`*(a, b: DecimalType): bool =
   else:
     return false
 
-template `<`*[T: SomeNumber](a: DecimalType, b: T): untyped =
-  a < newDecimal(b)
-template `<`*[T: SomeNumber](a: T, b: DecimalType): untyped =
-  newDecimal(a) < b
+template `<`*[T: SomeNumber](a: DecimalType, x: T):bool =
+  var n = x
+
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+      b.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération <")
+  a < b
+
+template `<`*[T: SomeNumber](x: T, b: DecimalType):bool =
+  var n = x
+
+  var a:DecimalType
+  new a, deleteDecimal
+  a[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(a[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(a[], s, CTX_ADDR)
+      a.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération <")
+  a < b
   
 proc `<=`*(a, b: DecimalType): bool =
   let less_cmp = a < b
@@ -469,10 +618,85 @@ proc `<=`*(a, b: DecimalType): bool =
   let equal_cmp = a == b
   if equal_cmp: return true
   return false
-template `<=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
-  a <= newDecimal(b)
-template `<=`*[T: SomeNumber](a: T, b: DecimalType): untyped =
-  newDecimal(a) <= b
+template `<=`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  var n = x
+
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+      b.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération <=")
+  a <= b
+
+template `<=`*[T: SomeNumber](x: T, b: DecimalType): bool =
+  var n = x
+
+  var a:DecimalType
+  new a, deleteDecimal
+  a[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(a[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(a[], s, CTX_ADDR)
+      a.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération <=")
+  a <= b
 
 
 
@@ -485,10 +709,86 @@ proc `>`*(a, b: DecimalType): bool =
   else:
     return false
 
-template `>`*[T: SomeNumber](a: DecimalType, b: T): untyped =
-  a > newDecimal(b)
-template `>`*[T: SomeNumber](a: T, b: DecimalType): untyped =
-  newDecimal(a) > b
+template `>`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  var n = x
+
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+      b.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération >")
+  a > b
+
+
+template `>`*[T: SomeNumber](x: T, b: DecimalType) : bool=
+  var n = x
+
+  var a:DecimalType
+  new a, deleteDecimal
+  a[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(a[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(a[], s, CTX_ADDR)
+      a.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération >")
+  a > b
   
 proc `>=`*(a, b: DecimalType): bool =
   let less_cmp = a > b
@@ -496,10 +796,88 @@ proc `>=`*(a, b: DecimalType): bool =
   let equal_cmp = a == b
   if equal_cmp: return true
   return false
-template `>=`*[T: SomeNumber](a: DecimalType, b: T): untyped =
-  a >= newDecimal(b)
-template `>=`*[T: SomeNumber](a: T, b: DecimalType): untyped =
-  newDecimal(a) >= b
+
+
+template `>=`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  var n = x
+
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+      b.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération >=")
+  a >= b
+
+
+template `>=`*[T: SomeNumber](x: T, b: DecimalType) : bool =
+  var n = x
+  
+  var a:DecimalType
+  new a, deleteDecimal
+  a[] = mpd_qnew()
+
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akInt64 :
+      mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(a[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akUInt64 :
+      mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(a[], s, CTX_ADDR)
+      a.reduce()
+    else :
+      raise newException(DecimalError, "Failed opération >=")
+  a >= b
 
 
 
