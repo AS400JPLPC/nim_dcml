@@ -123,6 +123,12 @@ a^b 10000000000
 
  c.plus() -32
 
+
+ a.setDcml("10")
+ b.setDcml("20")
+ c.setDcml("3")
+ 
+ 
  d.fma( a, b, c) 203
 
  d.rem(a, b) 1
@@ -131,17 +137,20 @@ a^b 10000000000
 
  d.truncate() 3
 
-c.setDcml('3.9800000') 3.9800000
+ c.setDcml('3.9800000') 3.9800000
  d.reduce() 3.98 \\n
 
+ d.setDcml('10.1') 10.1
  d.Rjust() 10.10
 
- d.Valide() 10.00
+d.setDcml('10') 10
+d.Valide() 10.00
 
+ d.setDcml('10.123456') 10.123456
  d.Round(3) 10.123
 
 d.setDcml('10.12345') 10.12345
-var d invalide format 
+if d.isErr()==true:   message "var d'invalide format" 
 
 d.setDcml('123456.12345') 123456.12345
 dcml.nim(694)            Valide
