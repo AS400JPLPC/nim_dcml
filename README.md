@@ -75,6 +75,38 @@ a/b 10
 a//b 1
 a^b 10000000000
 
+ a==b  true
+ a==10 true
+ 10==a true
+ a<b   false
+ a<10  false
+ a<b   false
+ a<=b  true
+ 10<=a true
+ a<=10 true
+ a>b   false
+ a>10  false
+ a>b   false
+ a>=b  true
+ 10>=a true
+ a>=10 true
+ a==b  false
+ a==10 false
+ 10==a false
+ a<b   true
+ a<10  true
+ a<b   true
+ a<=b  true
+ 10<=a false
+ a<=10 true
+ a>b   false
+ a>10  true
+ a>b   false
+ a>=b  false
+ 10>=a false
+ a>=10 true
+
+
  clone(a) 10
 
  b+22.96 32.96
