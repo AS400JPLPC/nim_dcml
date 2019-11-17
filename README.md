@@ -56,6 +56,9 @@ et du soutient que j’ai eu dans le forum Nim.
   isErr
 
 
+
+- reslutats tstdcml.nim
+
  ```..TEST.. 
  
 10
