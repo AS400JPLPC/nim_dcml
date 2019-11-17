@@ -119,9 +119,9 @@ a^b 10000000000
 
  c.floor(b) 32
 
- c.plus() +32
+ c.plus() +32 (signed)
 
- c.plus() -32
+ c.minus() -32
 
 
  a.setDcml("10")
@@ -131,10 +131,11 @@ a^b 10000000000
  
  d.fma( a, b, c) 203
 
- d.rem(a, b) 1
+ d.rem(a, c) 1
 
  d.divint(a,c) 3
 
+ d.setDcml("3.98")
  d.truncate() 3
 
  c.setDcml('3.9800000') 3.9800000
