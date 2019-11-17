@@ -3,7 +3,7 @@
 - démarage projet 2019/11/05
 # en test 
 
-- date de mise a jour 2019/11/14 14:15
+- date de mise a jour 2019/11/17 
 
 
 decimal avec bornage pour conformiter avec SQL field definition
