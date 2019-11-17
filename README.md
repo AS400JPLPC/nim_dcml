@@ -109,10 +109,12 @@ var d invalide format
 
 d.setDcml('123456.12345') 123456.12345
 dcml.nim(694)            Valide
-Error: unhandled exception: Overlay Digit Valide() value:123456.12345  [DecimalError]```
+Error: unhandled exception: Overlay Digit Valide() value:123456.12345  [DecimalError]
+
+```
   
   
- 
+ ________________________________________________________________________________________________________________________
  
 #Dependency license
 
@@ -120,8 +122,7 @@ This library depends on and redistribute mpdecimal. mpdecimal is available at ht
 
 Mpdecimal is licensed under the following Simplified BSD terms (BSD 2-clause).
 
-```
-Copyright (c) 2008-2016 Stefan Krah. All rights reserved.
+```Copyright (c) 2008-2016 Stefan Krah. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -144,5 +145,4 @@ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
-```
+SUCH DAMAGE.```
