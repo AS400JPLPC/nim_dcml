@@ -33,6 +33,8 @@ et du soutient que j’ai eu dans le forum Nim.
   add  sub  mult  div  divInterger  power
 8. autre fonction
 
+  comparaion < > >= <= 
+
   floor ceil  
   
   (signed) plus minus
