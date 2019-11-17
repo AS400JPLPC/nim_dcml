@@ -5,7 +5,8 @@
 
 - date de mise a jour 2019/11/17 
 
-- début test avec treeview   treeview.nim   encours   style feuille de calcul
+- début test avec  treeview.nim   encours   style feuille de calcul projet NIM_etudes
+
 
 
 decimal avec bornage pour conformiter avec SQL field definition
