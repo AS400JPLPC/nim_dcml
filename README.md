@@ -28,3 +28,6 @@ et du soutient que j’ai eu dans le forum Nim.
 5. Contrôle des entrées String
 
 6. Prise en compte de Float
+
+7. fonction
+  + - * / //(divInterger) ^
