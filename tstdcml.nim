@@ -119,7 +119,7 @@ echo fmt" c.plus() {c.signed()}"
 
 echo ""
 c.minus()
-echo fmt" c.plus() {$c}"
+echo fmt" c.minus() {$c}"
 
 
 echo ""
@@ -142,7 +142,7 @@ echo fmt" d.divint(a,c) {$d}"
 
 
 echo ""
-c.setDcml("3.98")
+d.setDcml("3.98")
 d.truncate()
 echo fmt" d.truncate() {$d}"
 
