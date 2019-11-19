@@ -7,7 +7,7 @@
 
 import dcml_lowlevel
 import strformat
-from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat
+from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat,delete
 import typeinfo
 
 
@@ -30,6 +30,10 @@ mpd_defaultcontext(CTX_ADDR)
 #@@@@@@@@@@@@@@@@@@
 #------------------
 let cMaxDigit : uint8 = 38
+
+proc Valide*(a: DecimalType)
+proc Rtrim*(a: DecimalType)
+
 #------------------
 
 
@@ -43,10 +47,15 @@ proc `$`*(a: DecimalType): string =
   ## Convert DecimalType to string natural of basic mpd
   $mpd_to_sci(a[], 0)
 
+proc toStr(a: DecimalType): string =
+  a.Valide()
+  var s: string = $mpd_to_sci(a[], 0)
+  return s
+  
+  
 proc signed*(a: DecimalType): string =
   ## Convert DecimalType to string force signed '+'
   var s: string = $mpd_to_sci(a[], 0)
-  
   if s[0].isDigit == true : return fmt"+{s}"
   else: return fmt"{s}"
 
@@ -57,42 +66,60 @@ proc setDcml*(a, b : DecimalType) =
   mpd_copy_data(a[],b[],addr status)
 
 
-template setDcml*[T: SomeNumber](a: DecimalType, x: T) =
-  var n = x
-  var b:DecimalType
-  new b, deleteDecimal
-  b[] = mpd_qnew()
 
-  case kind(toAny(n)) :
-    of akInt8 , akInt16 ,akInt32 :
-      mpd_set_i32(b[], int32(x), CTX_ADDR)
+proc setDcml*(a: DecimalType; x : int)    =
+  when (sizeof(int(x)) == 8):
+    mpd_set_i64(a[], int64(x), CTX_ADDR)
+  else:
+    mpd_set_i32(a[], int32(x), CTX_ADDR)
 
-    of akInt64 :
-      mpd_set_i64(b[], int64(x), CTX_ADDR)
 
-    of akInt :
-      when (sizeof(int(x)) == 8):
-        mpd_set_i64(b[], int64(x), CTX_ADDR)
-      else:
-        mpd_set_i32(b[], int32(x), CTX_ADDR)
+proc setDcml*(a: DecimalType; x : int8)   =
+  mpd_set_i32(a[], int32(x), CTX_ADDR)
 
-    of akUInt8 , akUInt16 ,akUInt32 :
-      mpd_set_u32(b[], uint32(x), CTX_ADDR)
 
-    of akUInt64 :
-      mpd_set_u64(b[], uint64(x), CTX_ADDR)
+proc setDcml*(a: DecimalType; x : int16) =
+  mpd_set_i32(a[], int32(x), CTX_ADDR)
 
-    of akUInt :
-      when (sizeof(uint(x)) == 8):
-        mpd_set_u64(b[], uint64(x), CTX_ADDR)
-      else:
-        mpd_set_u32(b[], uint32(x), CTX_ADDR)
 
-    of akFloat :
-      var s: string = formatFloat(float(n)) 
-      mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
-  a.setDcml(b)
+proc setDcml*(a: DecimalType; x : int32) =
+  mpd_set_i32(a[], int32(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : int64) =
+  mpd_set_i64(a[], int64(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : uint)    =
+  when (sizeof(uint(x)) == 8):
+    mpd_set_u64(a[], uint64(x), CTX_ADDR)
+  else:
+    mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : uint8)   =
+  mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : uint16) =
+  mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : uint32) =
+  mpd_set_u32(a[], uint32(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : uint64) =
+  mpd_set_u64(a[], uint64(x), CTX_ADDR)
+
+
+proc setDcml*(a: DecimalType; x : float) =
+  var s: string = formatFloat(float(x))
+  mpd_set_string(a[], s, CTX_ADDR)
+  a.Rtrim()
+
+
+
 
 proc setDcml*(a : DecimalType, x:string) =
   var sVal:string = x
@@ -170,7 +197,7 @@ template `+`*[T: SomeNumber](a: DecimalType, x: T) =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération +")
   a + b
@@ -221,7 +248,7 @@ template `-`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération -")
   a - b
@@ -270,7 +297,7 @@ template `*`*[T: SomeNumber](a: DecimalType, x: T) =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération *")
   a * b
@@ -319,7 +346,7 @@ template `/`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération /")
   a / b
@@ -369,7 +396,7 @@ template `//`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération //")
   a // b
@@ -419,7 +446,7 @@ template `^`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération ^")
   a ^ b
@@ -477,7 +504,7 @@ template `==`*[T: SomeNumber](a: DecimalType, x: T):bool=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération ==")
   a == b
@@ -517,7 +544,7 @@ template `==`*[T: SomeNumber](x: T, b: DecimalType):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.reduce()
+      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération ==")
   a == b
@@ -567,7 +594,7 @@ template `<`*[T: SomeNumber](a: DecimalType, x: T):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <")
   a < b
@@ -607,7 +634,7 @@ template `<`*[T: SomeNumber](x: T, b: DecimalType):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.reduce()
+      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <")
   a < b
@@ -653,7 +680,7 @@ template `<=`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <=")
   a <= b
@@ -693,7 +720,7 @@ template `<=`*[T: SomeNumber](x: T, b: DecimalType): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.reduce()
+      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <=")
   a <= b
@@ -744,7 +771,7 @@ template `>`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >")
   a > b
@@ -785,7 +812,7 @@ template `>`*[T: SomeNumber](x: T, b: DecimalType) : bool=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.reduce()
+      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >")
   a > b
@@ -833,7 +860,7 @@ template `>=`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.reduce()
+      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >=")
   a >= b
@@ -874,7 +901,7 @@ template `>=`*[T: SomeNumber](x: T, b: DecimalType) : bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.reduce()
+      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >=")
   a >= b
@@ -932,7 +959,7 @@ proc minus*(a: DecimalType) =
 proc plus*(a: DecimalType) =
   var status: uint32
   mpd_qplus(a[], a[], CTX_ADDR, addr status)
-  var sPlus:string = fmt"+{$a}"
+  var sPlus:string = $mpd_to_sci(a[], 0)
   mpd_set_string(a[], sPlus, CTX_ADDR)
 
 
@@ -964,11 +991,22 @@ proc finalize*(a: DecimalType) =
   mpd_qfinalize(a[], CTX_ADDR, addr status)
 
 
-proc reduce*(a: DecimalType) =
-  ## If a is finite after applying rounding and overflow/underflow checks,
-  ## result is set to the simplest form of a with all trailing zeros removed
-  var status: uint32
-  mpd_qreduce(a[], a[], CTX_ADDR, addr status)
+proc Rtrim*(a: DecimalType) =
+  ## trailing zeros removed
+  var iScale:int = int(a.scale)
+  var sNumber:string = $mpd_to_sci(a[], 0)
+  var iLen: int = sNumber.len()
+  var iPos: int = sNumber.find('.')
+  if iPos >= 0 : iPos += int(1)
+  
+  # test nbr digit after . 
+  iLen -= iPos
+  if iLen > iScale :
+    iPos += iScale
+    sNumber.delete(iPos,sNumber.len())
+    mpd_set_string(a[], sNumber, CTX_ADDR)
+
+
 
 #---------------------------------------
 # contrôle len buffer and caractéristique  
@@ -977,12 +1015,12 @@ proc reduce*(a: DecimalType) =
 
 proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, "Failed Init isErr")
+    raise newException(DecimalError, fmt"Failed Init isErr value:{$mpd_to_sci(a[], 0)}")
   ## contrôle dépassement capacité
 
   var iEntier:int = int(a.entier)
   var iScale:int = int(a.scale)
-  var sNumber:string = $a
+  var sNumber:string = $mpd_to_sci(a[], 0)
   var iMax:int =  iEntier + iScale
   var iLen:int =  sNumber.len()
 
@@ -1011,11 +1049,11 @@ proc isErr*(a: DecimalType):bool =
 #---------------------------------------
 proc Rjust*(a: DecimalType)=
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, "Failed Init  Rjust")
+    raise newException(DecimalError, fmt"Failed Init  Rjust value:{$mpd_to_sci(a[], 0)}")
   let padding = '0'
 
   var iScale:int = int(a.scale)
-  var sNumber:string = $a
+  var sNumber:string = $mpd_to_sci(a[], 0)
   var iLen: int = sNumber.len()
   var iPos: int = sNumber.find('.')
 
@@ -1025,7 +1063,7 @@ proc Rjust*(a: DecimalType)=
 
   if iLen < iScale :
     sNumber.add(padding.repeat(iLen))
-  a.setDcml(sNumber)
+  mpd_set_string(a[], sNumber, CTX_ADDR)
 
 
 
@@ -1038,7 +1076,7 @@ proc Rjust*(a: DecimalType)=
 proc Valide*(a: DecimalType) =
   ## controle dépassement capacité
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, "Failed Init Vaile()")
+    raise newException(DecimalError, fmt"Failed Init Valide() value:{$mpd_to_sci(a[], 0)}")
   var status: uint32
   var CTXN: mpd_context_t
   var CTX_CTRL = addr CTXN
@@ -1059,7 +1097,7 @@ proc Valide*(a: DecimalType) =
 
   r.floor(a)
 
-  sEntier= $r
+  sEntier= $mpd_to_sci(r[], 0)
   sEntier = sEntier.replace("+","" )
   sEntier = sEntier.replace("-","" )
   i = sEntier.len
@@ -1069,7 +1107,7 @@ proc Valide*(a: DecimalType) =
     i = 0
 
   if i > iEntier :
-    raise newException(DecimalError, fmt"Overlay Digit Valide() value:{a} ") 
+    raise newException(DecimalError, fmt"Overlay Digit Valide() value:{$mpd_to_sci(a[], 0)} ") 
 
   ## formatages 
   ## suppression des digits scale en trop  
@@ -1080,7 +1118,7 @@ proc Valide*(a: DecimalType) =
       sEntier= fmt"{sEntier}."
       for i in 1..iScale :
         sEntier = fmt"{sEntier}0"
-      r.setDcml(sEntier)
+      mpd_set_string(r[], sEntier, CTX_ADDR)
     else :
       mpd_copy_data(r[],a[],addr status)
       for i in 1..iScale :
@@ -1095,7 +1133,7 @@ proc Valide*(a: DecimalType) =
 
 #---------------------------------------
 # ARRONDI comptable / commercial   
-# 5 => + 1   sinon trunc  
+# 5 => + 1 
 # maximun 38 digits 
 #---------------------------------------
 
@@ -1150,10 +1188,10 @@ proc newDcml*( iEntier: uint8 ; iScale : uint8 ): DecimalType =
   r[] = mpd_qnew()
   r.entier = iEntier
   r.scale  = iScale
-  r.setDcml("0")
+  mpd_set_string(r[], "0", CTX_ADDR)
   return r
-
 
 proc delDcml*(a: DecimalType) =
   mpd_del(a[])
+
 #@@@@@@@@@@@@@@@@@@

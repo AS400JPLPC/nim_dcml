@@ -3,11 +3,54 @@ import strformat
 
 var a = newDcml(5,2)
 
-a.setDcml("10")
+var Iint: int = 10
+setDcml(a,Iint)
+echo fmt"Iint {$a}"
 
+var Iint8: int8 = 10
+setDcml(a,Iint8)
+echo fmt"Iint8 {$a}"
+
+var Iint16: int16 = 10
+setDcml(a,Iint16)
+echo fmt"Iint16 {$a}"
+
+var Iint32: int32 = 10
+setDcml(a,Iint32)
+echo fmt"Iint32 {$a}"
+
+var Iint64: int64 = 10
+setDcml(a,Iint64)
+echo fmt"Iint64 {$a}"
+
+var Uint: uint = 10
+setDcml(a,Uint)
+echo fmt"Uint {$a}"
+
+var Uint8: uint8 = 10
+setDcml(a,Uint8)
+echo fmt"Uint8 {$a}"
+
+var Uint16: uint16 = 10
+setDcml(a,Uint16)
+echo fmt"Uint16 {$a}"
+
+var Uint32: uint32 = 10
+setDcml(a,Uint32)
+echo fmt"Uint32 {$a}"
+
+var Uint64: uint64 = 10
+setDcml(a,Uint64)
+echo fmt"Uint64 {$a}"
+
+var Ffloat: float = 10
+setDcml(a,Ffloat)
+echo fmt"float {$a}"
+
+a.Valide 
 echo $a
 
-
+a.setDcml("10")
 a+10
 echo fmt"a+10 {$a}"
 a-10
@@ -36,9 +79,13 @@ echo fmt"a/b {$a}"
 a//b
 echo fmt"a//b {$a}"
 a.setDcml("10")
-a^b
-echo fmt"a^b {$a}"
 
+#[var e = newDcml(15,2)
+var i:int = 10
+e.setDcml(i)
+e^b
+echo fmt"e^b {$e}"
+]#
 
 a.setDcml("10")
 
@@ -150,7 +197,7 @@ echo fmt" d.truncate() {$d}"
 echo ""
 d.setDcml("3.9800000")
 echo fmt"c.setDcml('3.9800000') {$d}"
-d.reduce()
+d.Rtrim()
 echo fmt" d.reduce() {$d} \\n"
 
 
@@ -168,7 +215,7 @@ echo fmt" d.Valide() {$d}"
 echo ""
 d.setDcml("10.123456789")
 d.Round(3)
-echo fmt" d.Round(3) {$d}"
+echo fmt" d.Round(3)  {$d}" 
 
 
 echo ""
