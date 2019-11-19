@@ -1,9 +1,9 @@
 # nim_dcml
 
 - démarage projet 2019/11/05
-# en test 
+# en test non stable
 
-- date de mise a jour 2019/11/17 
+- date de mise à jour 2019/11/19
 
 - début test avec  treeview.nim   encours   style feuille de calcul projet NIM_etudes
 
@@ -28,17 +28,21 @@ et du soutient que j’ai eu dans le forum Nim.
 
 4. Formatage avec justification last zero
 
-5. Contrôle des entrées String
+5. setDcml  int/int8/int16/int32/int64 uint/uint8/uint16/uint32/uint64
 
-6. Prise en compte de Float
+6. setDcml string
 
-7. fonction
+7. setDcml Float
+
+8. fonction
   add  sub  mult  div  divInterger  power
-8. autre fonction
+9. autre fonction
 
   comparaion < > >= <= ==
 
-  floor ceil  
+  floor 
+  
+  ceil  
   
   (signed) plus minus
   
@@ -50,13 +54,13 @@ et du soutient que j’ai eu dans le forum Nim.
   
   truncate
   
-  reduce  (trim zero rigth)
+  Rtrim  (trim zero rigth (format scale ))
 
-  Rjust  (alligne zeros right (format scale ))
+  Rjust  (add zeros right (format scale ))
   
-  Valide (format for type SQL DCML)
+  Valide (format for type SQL DCML   sans arrondi)
   
-  Round
+  Round ( arrondi)
   
   isErr
 
@@ -65,7 +69,17 @@ et du soutient que j’ai eu dans le forum Nim.
 - reslutats tstdcml.nim
 
  ```..TEST.. 
- 
+Iint 10
+Iint8 10
+Iint16 10
+Iint32 10
+Iint64 10
+Uint 10
+Uint8 10
+Uint16 10
+Uint32 10
+Uint64 10
+float 10.00
 10
 a+10 20
 a-10 10
