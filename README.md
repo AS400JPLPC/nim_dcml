@@ -5,6 +5,10 @@
 
 - date de mise à jour 2019/11/20
 - fin des tests de contrôle de cohérence/validité dcml 2019/11/20
+- reste à faire
+  1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
+  2 . à tester en situation interactive voir treeview.nim
+  3 . à tester en mode SQL direct
 
 - début test avec 2019/11/21 treeview.nim   encours  avec pratique Dcml (voir projet NIM_etudes)
 
@@ -18,6 +22,8 @@ je remercie l’équipe du très gros travail pour adapter qui est fait en c/c++
 https://github.com/status-im/nim-decimal
 
 et du soutient que j’ai eu dans le forum Nim.
+
+tous les calculs ce font en valeur étendue seul la fonction Valide formate
 
 - Mon intervention consiste 
 
