@@ -116,7 +116,6 @@ proc setDcml*(a: DecimalType; x : uint64) =
 proc setDcml*(a: DecimalType; x : float) =
   var s: string = formatFloat(float(x))
   mpd_set_string(a[], s, CTX_ADDR)
-  #a.Rtrim()
 
 
 
@@ -197,7 +196,6 @@ template `+`*[T: SomeNumber](a: DecimalType, x: T) =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération +")
   a + b
@@ -248,7 +246,6 @@ template `-`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération -")
   a - b
@@ -297,7 +294,6 @@ template `*`*[T: SomeNumber](a: DecimalType, x: T) =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération *")
   a * b
@@ -346,7 +342,6 @@ template `/`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération /")
   a / b
@@ -396,7 +391,6 @@ template `//`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération //")
   a // b
@@ -446,7 +440,6 @@ template `^`*[T: SomeNumber](a: DecimalType, x: T)=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération ^")
   a ^ b
@@ -544,7 +537,6 @@ template `==`*[T: SomeNumber](x: T, b: DecimalType):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération ==")
   a == b
@@ -594,7 +586,6 @@ template `<`*[T: SomeNumber](a: DecimalType, x: T):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <")
   a < b
@@ -634,7 +625,6 @@ template `<`*[T: SomeNumber](x: T, b: DecimalType):bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <")
   a < b
@@ -680,7 +670,6 @@ template `<=`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <=")
   a <= b
@@ -720,7 +709,6 @@ template `<=`*[T: SomeNumber](x: T, b: DecimalType): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération <=")
   a <= b
@@ -771,7 +759,6 @@ template `>`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >")
   a > b
@@ -812,7 +799,6 @@ template `>`*[T: SomeNumber](x: T, b: DecimalType) : bool=
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >")
   a > b
@@ -860,7 +846,6 @@ template `>=`*[T: SomeNumber](a: DecimalType, x: T): bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(b[], s, CTX_ADDR)
-      b.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >=")
   a >= b
@@ -901,7 +886,6 @@ template `>=`*[T: SomeNumber](x: T, b: DecimalType) : bool =
     of akFloat :
       var s: string = formatFloat(float(n)) 
       mpd_set_string(a[], s, CTX_ADDR)
-      a.Rtrim()
     else :
       raise newException(DecimalError, "Failed opération >=")
   a >= b
@@ -1004,8 +988,8 @@ proc Rtrim*(a: DecimalType) =
 
   if iPos >= 0 : iPos += int(1)
 
-
-  # ttrialin zeros 
+  if iPos == -1: return
+  # delete zeros 
 
   while true :
     iLen = sNumber.len()
@@ -1028,10 +1012,14 @@ proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
     raise newException(DecimalError, fmt"Failed Init isErr value:{$mpd_to_sci(a[], 0)}")
   ## contrôle dépassement capacité
-
+  var r:DecimalType
+  new r, deleteDecimal
+  r[] = mpd_qnew()
+  r.setDcml(a)
+  r.Rtrim()
   var iEntier:int = int(a.entier)
   var iScale:int = int(a.scale)
-  var sNumber:string = $mpd_to_sci(a[], 0)
+  var sNumber:string = $mpd_to_sci(r[], 0)
   var iMax:int =  iEntier + iScale
   var iLen:int =  sNumber.len()
 
@@ -1101,7 +1089,7 @@ proc Valide*(a: DecimalType) =
 
   var sEntier:string
 
-  var i , d :int 
+  var i :int 
   var r:DecimalType
   new r, deleteDecimal
   r[] = mpd_qnew()

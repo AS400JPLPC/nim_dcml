@@ -80,7 +80,9 @@ a^10
 echo fmt"a^10 {$a}"
 
 a.setDcml("10")
+
 var b = clone(a)
+
 a.setDcml("10")
 a+b
 echo fmt"a+b {$a}"
@@ -94,14 +96,16 @@ a//b
 echo fmt"a//b {$a}"
 a.setDcml("10")
 
-#[var e = newDcml(15,2)
+var e = newDcml(15,2)
 var i:int = 10
 e.setDcml(i)
 e^b
 echo fmt"e^b {$e}"
-]#
+e.Rtrim()
+echo fmt"e^b {$e}"
 
 a.setDcml("10")
+
 
 echo fmt" a==b  {a==b}"
 echo fmt" a==10 {a==10}"
