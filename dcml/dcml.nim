@@ -116,7 +116,7 @@ proc setDcml*(a: DecimalType; x : uint64) =
 proc setDcml*(a: DecimalType; x : float) =
   var s: string = formatFloat(float(x))
   mpd_set_string(a[], s, CTX_ADDR)
-  a.Rtrim()
+  #a.Rtrim()
 
 
 
@@ -993,18 +993,29 @@ proc finalize*(a: DecimalType) =
 
 proc Rtrim*(a: DecimalType) =
   ## trailing zeros removed
+  var r:DecimalType
+  new r, deleteDecimal
+  r[] = mpd_qnew()
+
   var iScale:int = int(a.scale)
   var sNumber:string = $mpd_to_sci(a[], 0)
-  var iLen: int = sNumber.len()
   var iPos: int = sNumber.find('.')
+  var iLen: int
+
   if iPos >= 0 : iPos += int(1)
-  
-  # test nbr digit after . 
-  iLen -= iPos
-  if iLen > iScale :
-    iPos += iScale
-    sNumber.delete(iPos,sNumber.len())
-    mpd_set_string(a[], sNumber, CTX_ADDR)
+
+
+  # ttrialin zeros 
+
+  while true :
+    iLen = sNumber.len()
+    iLen -= iPos
+    if sNumber[sNumber.len()-1] == '0' and iLen > iScale  :
+      sNumber.delete(sNumber.len()-1,sNumber.len())
+    else:
+      break
+    
+  mpd_set_string(a[], sNumber, CTX_ADDR)
 
 
 
@@ -1023,6 +1034,7 @@ proc isErr*(a: DecimalType):bool =
   var sNumber:string = $mpd_to_sci(a[], 0)
   var iMax:int =  iEntier + iScale
   var iLen:int =  sNumber.len()
+
 
   if iEntier == 0 : 
     iMax = iMax + 1
