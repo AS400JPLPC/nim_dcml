@@ -6,7 +6,7 @@
 - date de mise à jour 2019/11/20
 - fin des tests de contrôle de cohérence/validité dcml 2019/11/20
 
-- début test avec 2019/11/21 treeview.nim   encours   style feuille de calcul projet NIM_etudes
+- début test avec 2019/11/21 treeview.nim   encours  avec pratique Dcml projet NIM_etudes
 
 
 
