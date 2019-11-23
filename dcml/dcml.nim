@@ -147,12 +147,12 @@ proc `:=`*(a : DecimalType, x:string) =
 
 
 
-proc `+`*(a, b: DecimalType)=
+proc `+=`*(a, b: DecimalType)=
   var status: uint32
   mpd_qadd(a[], a[], b[], CTX_ADDR, addr status)
 
 
-template `+`*[T: SomeNumber](a: DecimalType, x: T) =
+template `+=`*[T: SomeNumber](a: DecimalType, x: T) =
   ## ADD decimal from X
   var n = x
 
@@ -190,20 +190,20 @@ template `+`*[T: SomeNumber](a: DecimalType, x: T) =
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération +")
-  a + b
+  a += b
 
 
 
 
 
-proc `-`*(a, b: DecimalType) =
+proc `-=`*(a, b: DecimalType) =
   ## SUB decimal from X
   var status: uint32
   mpd_qsub(a[], a[], b[], CTX_ADDR, addr status)
 
 
 
-template `-`*[T: SomeNumber](a: DecimalType, x: T)=
+template `-=`*[T: SomeNumber](a: DecimalType, x: T)=
   var n = x
 
   var b:DecimalType
@@ -240,18 +240,18 @@ template `-`*[T: SomeNumber](a: DecimalType, x: T)=
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération -")
-  a - b
+  a -= b
 
 
 
 
 
-proc `*`*(a, b: DecimalType)=
+proc `*=`*(a, b: DecimalType)=
   ## MULT decimal from X
   var status: uint32
   mpd_qmul(a[], a[], b[], CTX_ADDR, addr status)
 
-template `*`*[T: SomeNumber](a: DecimalType, x: T) =
+template `*=`*[T: SomeNumber](a: DecimalType, x: T) =
   var n = x
 
   var b:DecimalType
@@ -288,18 +288,18 @@ template `*`*[T: SomeNumber](a: DecimalType, x: T) =
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération *")
-  a * b
+  a *= b
 
 
 
 
 
-proc `/`*(a, b: DecimalType) =
+proc `/=`*(a, b: DecimalType) =
   ## DIV decimal from X
   var status: uint32
   mpd_qdiv(a[], a[], b[], CTX_ADDR, addr status)
 
-template `/`*[T: SomeNumber](a: DecimalType, x: T)=
+template `/=`*[T: SomeNumber](a: DecimalType, x: T)=
   var n = x
 
   var b:DecimalType
@@ -336,19 +336,19 @@ template `/`*[T: SomeNumber](a: DecimalType, x: T)=
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération /")
-  a / b
+  a /= b
 
 
 
 
 
-proc `//`*(a, b: DecimalType)=
+proc `//=`*(a, b: DecimalType)=
   ## DIVINTEGER  decimal from X
   var status: uint32
   mpd_qdivint(a[], a[], b[], CTX_ADDR, addr status)
 
 
-template `//`*[T: SomeNumber](a: DecimalType, x: T)=
+template `//=`*[T: SomeNumber](a: DecimalType, x: T)=
   var n = x
 
   var b:DecimalType
@@ -385,19 +385,19 @@ template `//`*[T: SomeNumber](a: DecimalType, x: T)=
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération //")
-  a // b
+  a //= b
 
 
 
 
 
-proc `^`*(a, b: DecimalType) =
+proc `^=`*(a, b: DecimalType) =
   ## POWER   decimal from X
   var status: uint32
   mpd_qpow(a[], a[], b[], CTX_ADDR, addr status)
 
 
-template `^`*[T: SomeNumber](a: DecimalType, x: T)=
+template `^=`*[T: SomeNumber](a: DecimalType, x: T)=
   var n = x
 
   var b:DecimalType
@@ -434,7 +434,7 @@ template `^`*[T: SomeNumber](a: DecimalType, x: T)=
       mpd_set_string(b[], s, CTX_ADDR)
     else :
       raise newException(DecimalError, "Failed opération ^")
-  a ^ b
+  a ^= b
 
 
 
@@ -1011,27 +1011,27 @@ proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
       r:= x
       case signe:
         of "+" :
-          n+r
+          n+=r
         of "-" :
-          n-r
+          n-=r
         of "*" :
-          n*r
+          n*=r
         of "/" :
-          n/r
+          n/=r
         of "%" :
-          n/100
-          n*r
+          n/=100
+          n*=r
         of "+%" :
           sav:=n
-          sav/100
-          sav*r
-          n+sav
+          sav/=100
+          sav*=r
+          n+=sav
 
         of "-%" :
           sav:=n
-          sav/100
-          sav*r
-          n-sav
+          sav/=100
+          sav*=r
+          n-=sav
         else:
           raise newException(DecimalError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
 
@@ -1155,10 +1155,10 @@ proc Valide*(a: DecimalType) =
     else :
       mpd_copy_data(r[],a[],addr status)
       for i in 1..iScale :
-        r*10
+        r*=10
       r.truncate()
       for i in 1..iScale :
-        r/10
+        r/=10
   
   mpd_copy_data(a[],r[],addr status)
   a.Rjust()
@@ -1185,10 +1185,10 @@ proc Round*(a: DecimalType; iScale:int )=
   if iScale > 0 :
     
     for i in 1..iScale :
-      r*10
+      r*=10
     mpd_qround_to_intx(r[], r[], CTX_CTRL, addr status)
     for i in 1..iScale :
-      r/10
+      r/=10
 
   else:
     r.floor(r)

@@ -73,47 +73,47 @@ a.Rtrim
 echo fmt"a.Rtrim {$a}"
 
 a:="10"
-a+10
-echo fmt"a+10 {$a}"
-a-10
-echo fmt"a-10 {$a}"
-a*10
-echo fmt"a*10 {$a}"
-a/10
-echo fmt"a/10 {$a}"
-a//10
-echo fmt"a//10 {$a}"
+a+=10
+echo fmt"a+=10 {$a}"
+a-=10
+echo fmt"a-=10 {$a}"
+a*=10
+echo fmt"a*=10 {$a}"
+a/=10
+echo fmt"a/=10 {$a}"
+a//=10
+echo fmt"a//=10 {$a}"
 a:="10"
-a^10
-echo fmt"a^10 {a.debug}"
+a^=10
+echo fmt"a^=10 {a.debug}"
 
-a:="10"
+a:=10
 
 var b = clone(a)
 
-a:="10"
-a+b
-echo fmt"a+b {$a}"
-a-b
-echo fmt"a-b {$a}"
-a*b
-echo fmt"a*b {$a}"
-a/b
-echo fmt"a/b {$a}"
-a//b
-echo fmt"a//b {$a}"
-a:="10"
+a:=10
+a+=b
+echo fmt"a+=b {$a}"
+a-=b
+echo fmt"a-=b {$a}"
+a*=b
+echo fmt"a*=b {$a}"
+a/=b
+echo fmt"a/=b {$a}"
+a//=b
+echo fmt"a//=b {$a}"
+
 
 var e = newDcml(20,2)
 var i:int = 10
 e:=i
 echo fmt"e {$e}"
-e^b
-echo fmt"e^b {$e}"
+e^=b
+echo fmt"e^=b {e.debug()}"
 e.Rtrim()
-echo fmt"e^b {$e}"
+echo fmt"e.Rtrim() {$e}"
 
-a:="10"
+a:=10
 
 
 echo fmt" a==b  {a==b}"
@@ -136,7 +136,7 @@ echo fmt" a>=b  {a>=b}"
 echo fmt" 10>=a {10<=a}"
 echo fmt" a>=10 {a<=10}"
 
-a:=("1")
+a:=1
 
 echo fmt" a==b  {a==b}"
 echo fmt" a==10 {a==10}"
@@ -167,7 +167,7 @@ echo fmt" clone(a) {$b}"
 
 
 echo ""
-b+22.96
+b+=22.96
 echo fmt" b+22.96 {$b}"
 
 
@@ -225,40 +225,40 @@ echo fmt" d.truncate() {$d}"
 
 
 echo ""
-d:="3.9800000"
-echo fmt"c.setDcml('3.9800000') {$d}"
+d:=3.9800000
+echo fmt"c:=3.9800000 {$d}"
 d.Rtrim()
 echo fmt" d.Rtrim() {$d} \\n"
 
 
 echo ""
-d:="10.1"
+d:=10.1
 d.Rjust()
 echo fmt" d.Rjust() {$d}"
 
 
 echo ""
-d:="10"
+d:=10
 d.Valide()
 echo fmt" d.Valide() {$d}"
 
 echo ""
-d:="10.123456789"
+d:=10.123456789
 d.Round(3)
 echo fmt" d.Round(3)  {$d}" 
 
 
 echo ""
-d:="10.12345"
-echo fmt"d.setDcml('10.12345') {$d}"
+d:=10.12345
+echo fmt"d:=10.12345 {$d}"
 if d.isErr() : echo $d
 else : echo "var d invalide format "
 
 
 # erreur
 echo ""
-a:=("123456789012.12345")
-echo fmt"d.setDcml('123456789012.12345') "
+a:="123456789012.12345"
+echo fmt"d:=123456789012.12345 "
 if a.isErr():
   echo fmt" a.isErr() {a.debug()}"
 
@@ -293,7 +293,7 @@ echo $a
 
 a:=100
 echo fmt"{$a} -% 4"
-a.eval("-%",4)
+a.eval("-%" , 4)
 
 echo $a
 
