@@ -11,6 +11,7 @@
   - ajout debug sortie libre sans contrôle
   - modification sortie $ avec contrôle
   - suppression proc delDcml inutil veuillez utiliser nil
+  - encours de test structure Reccord Enrg... 
   
 - reste à faire
   1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
