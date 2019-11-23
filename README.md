@@ -14,6 +14,7 @@
   - encours de test structure Reccord Enrg... 
   
 - reste à faire
+
   1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
 
   2 . à tester en situation interactive voir treeview.nim
