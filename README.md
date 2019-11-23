@@ -5,7 +5,8 @@
 
 - date de mise à jour 2019/11/23
 - fin des tests de contrôle de cohérence/validité dcml 2019/11/20
-- simplification le 2019/11/23 
+- simplification le 2019/11/23
+  - harmonistaion en fonction de nim-decimal
   - `:=` remplace setDcml
   - supression toStr 
   - ajout debug sortie libre sans contrôle
@@ -53,7 +54,7 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formaté
 7. debug(a):string  acces sans contrôle
 
 8. fonction
-  add  sub  mult  div  divInterger  power
+  +=  -=  *= /= //=  ^= 
 9. autre fonction
 
   comparaion < > >= <= ==
