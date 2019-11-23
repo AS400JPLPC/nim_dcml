@@ -34,7 +34,7 @@ https://github.com/status-im/nim-decimal
 
 et du soutient que j’ai eu dans le forum Nim.
 
-tous les calculs ce font en valeur étendue seul la fonction Valide formate
+tous les calculs ce font en valeur étendue seul la fonction Valide formaté
 
 - Mon intervention consiste 
 
