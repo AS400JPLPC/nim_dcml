@@ -44,15 +44,15 @@ proc deleteDecimal(x: DecimalType) =
 
 
 proc `$`*(a: DecimalType): string =
+    ## Convert DecimalType to string for SQL format
+    a.Valide()
+    $mpd_to_sci(a[], 0)
+
+# edit val sans contrôle 
+proc debug*(a: DecimalType):string =
   ## Convert DecimalType to string natural of basic mpd
   $mpd_to_sci(a[], 0)
 
-proc toStr(a: DecimalType): string =
-  a.Valide()
-  var s: string = $mpd_to_sci(a[], 0)
-  return s
-  
-  
 proc signed*(a: DecimalType): string =
   ## Convert DecimalType to string force signed '+'
   var s: string = $mpd_to_sci(a[], 0)
@@ -61,66 +61,75 @@ proc signed*(a: DecimalType): string =
 
 
 
-proc setDcml*(a, b : DecimalType) =
+
+
+proc clone*(a: DecimalType): DecimalType =
+  ## Clone a DecimalType and returns a new independent one
+  var status: uint32
+  var r:DecimalType
+  new r, deleteDecimal
+  r[] = mpd_qnew()
+  let success = mpd_qcopy(r[], a[], addr status)
+  if success == 0:
+    raise newException(DecimalError, "Decimal failed to copy")
+  r.entier = a.entier
+  r.scale  = a.scale
+  return r
+
+
+
+
+
+
+# Operators  := + - * / ^ //
+
+
+## assignement valeur 
+proc `:=`*(a, b : DecimalType) =
   var status: uint32
   mpd_copy_data(a[],b[],addr status)
 
+template `:=`*[T: SomeNumber ](a: DecimalType, x: T) =
+  ## ADD decimal from X
+  var n = x
 
+  var b:DecimalType
+  new b, deleteDecimal
+  b[] = mpd_qnew()
 
-proc setDcml*(a: DecimalType; x : int)    =
-  when (sizeof(int(x)) == 8):
-    mpd_set_i64(a[], int64(x), CTX_ADDR)
-  else:
-    mpd_set_i32(a[], int32(x), CTX_ADDR)
+  case kind(toAny(n)) :
+    of akInt8 , akInt16 ,akInt32 :
+      mpd_set_i32(b[], int32(x), CTX_ADDR)
 
+    of akInt64 :
+      mpd_set_i64(b[], int64(x), CTX_ADDR)
 
-proc setDcml*(a: DecimalType; x : int8)   =
-  mpd_set_i32(a[], int32(x), CTX_ADDR)
+    of akInt :
+      when (sizeof(int(x)) == 8):
+        mpd_set_i64(b[], int64(x), CTX_ADDR)
+      else:
+        mpd_set_i32(b[], int32(x), CTX_ADDR)
 
+    of akUInt8 , akUInt16 ,akUInt32 :
+      mpd_set_u32(b[], uint32(x), CTX_ADDR)
 
-proc setDcml*(a: DecimalType; x : int16) =
-  mpd_set_i32(a[], int32(x), CTX_ADDR)
+    of akUInt64 :
+      mpd_set_u64(b[], uint64(x), CTX_ADDR)
 
+    of akUInt :
+      when (sizeof(uint(x)) == 8):
+        mpd_set_u64(b[], uint64(x), CTX_ADDR)
+      else:
+        mpd_set_u32(b[], uint32(x), CTX_ADDR)
 
-proc setDcml*(a: DecimalType; x : int32) =
-  mpd_set_i32(a[], int32(x), CTX_ADDR)
+    of akFloat :
+      var s: string = formatFloat(float(n)) 
+      mpd_set_string(b[], s, CTX_ADDR)
+    else :
+      raise newException(DecimalError, "Failed opération :=")
+  a := b
 
-
-proc setDcml*(a: DecimalType; x : int64) =
-  mpd_set_i64(a[], int64(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : uint)    =
-  when (sizeof(uint(x)) == 8):
-    mpd_set_u64(a[], uint64(x), CTX_ADDR)
-  else:
-    mpd_set_u32(a[], uint32(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : uint8)   =
-  mpd_set_u32(a[], uint32(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : uint16) =
-  mpd_set_u32(a[], uint32(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : uint32) =
-  mpd_set_u32(a[], uint32(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : uint64) =
-  mpd_set_u64(a[], uint64(x), CTX_ADDR)
-
-
-proc setDcml*(a: DecimalType; x : float) =
-  var s: string = formatFloat(float(x))
-  mpd_set_string(a[], s, CTX_ADDR)
-
-
-
-
-proc setDcml*(a : DecimalType, x:string) =
+proc `:=`*(a : DecimalType, x:string) =
   var sVal:string = x
   #test par defaut
   if (sVal == "" or sVal=="0" ) :  
@@ -135,25 +144,8 @@ proc setDcml*(a : DecimalType, x:string) =
 
 
 
-proc clone*(b: DecimalType): DecimalType =
-  ## Clone a DecimalType and returns a new independent one
-  var status: uint32
-  var r:DecimalType
-  new r, deleteDecimal
-  r[] = mpd_qnew()
-  let success = mpd_qcopy(r[], b[], addr status)
-  if success == 0:
-    raise newException(DecimalError, "Decimal failed to copy")
-  r.entier = b.entier
-  r.scale  = b.scale
-  return r
 
 
-
-
-
-
-# Operators
 
 proc `+`*(a, b: DecimalType)=
   var status: uint32
@@ -976,6 +968,8 @@ proc finalize*(a: DecimalType) =
 
 
 proc Rtrim*(a: DecimalType) =
+  if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
+    raise newException(DecimalError, fmt"Failed Init : Rtrim value:{$mpd_to_sci(a[], 0)}")
   ## trailing zeros removed
   var r:DecimalType
   new r, deleteDecimal
@@ -1003,6 +997,45 @@ proc Rtrim*(a: DecimalType) =
 
 
 
+
+
+proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
+  var r = clone(n)
+  var sav = clone(n)
+  var signe : string
+
+  for x in xs:
+    if x == "+" or x == "-" or x == "*" or x == "/" or x == "%" or x == "+%" or x == "-%":
+      signe = x
+    else :
+      r:= x
+      case signe:
+        of "+" :
+          n+r
+        of "-" :
+          n-r
+        of "*" :
+          n*r
+        of "/" :
+          n/r
+        of "%" :
+          n/100
+          n*r
+        of "+%" :
+          sav:=n
+          sav/100
+          sav*r
+          n+sav
+
+        of "-%" :
+          sav:=n
+          sav/100
+          sav*r
+          n-sav
+        else:
+          raise newException(DecimalError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
+
+
 #---------------------------------------
 # contrôle len buffer and caractéristique  
 # maximun 38 digits
@@ -1010,12 +1043,12 @@ proc Rtrim*(a: DecimalType) =
 
 proc isErr*(a: DecimalType):bool =
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, fmt"Failed Init isErr value:{$mpd_to_sci(a[], 0)}")
+    raise newException(DecimalError, fmt"Failed Init : isErr value:{$mpd_to_sci(a[], 0)}")
   ## contrôle dépassement capacité
   var r:DecimalType
   new r, deleteDecimal
   r[] = mpd_qnew()
-  r.setDcml(a)
+  r = clone(a)
   r.Rtrim()
   var iEntier:int = int(a.entier)
   var iScale:int = int(a.scale)
@@ -1049,7 +1082,7 @@ proc isErr*(a: DecimalType):bool =
 #---------------------------------------
 proc Rjust*(a: DecimalType)=
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, fmt"Failed Init  Rjust value:{$mpd_to_sci(a[], 0)}")
+    raise newException(DecimalError, fmt"Failed Init : Rjust value:{$mpd_to_sci(a[], 0)}")
   let padding = '0'
 
   var iScale:int = int(a.scale)
@@ -1076,7 +1109,7 @@ proc Rjust*(a: DecimalType)=
 proc Valide*(a: DecimalType) =
   ## controle dépassement capacité
   if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-    raise newException(DecimalError, fmt"Failed Init Valide() value:{$mpd_to_sci(a[], 0)}")
+    raise newException(DecimalError, fmt"Failed Init : Valide value:{$mpd_to_sci(a[], 0)}")
   var status: uint32
   var CTXN: mpd_context_t
   var CTX_CTRL = addr CTXN
@@ -1107,7 +1140,7 @@ proc Valide*(a: DecimalType) =
     i = 0
 
   if i > iEntier :
-    raise newException(DecimalError, fmt"Overlay Digit Valide() value:{$mpd_to_sci(a[], 0)} ") 
+    raise newException(DecimalError, fmt"Overlay Digit : Valide value:{$mpd_to_sci(a[], 0)} ") 
 
   ## formatages 
   ## suppression des digits scale en trop  
@@ -1147,7 +1180,7 @@ proc Round*(a: DecimalType; iScale:int )=
   var r:DecimalType
   new r, deleteDecimal
   r[] = mpd_qnew()
-  r.setDcml(a)
+  r:=a
 
   if iScale > 0 :
     
@@ -1190,8 +1223,5 @@ proc newDcml*( iEntier: uint8 ; iScale : uint8 ): DecimalType =
   r.scale  = iScale
   mpd_set_string(r[], "0", CTX_ADDR)
   return r
-
-proc delDcml*(a: DecimalType) =
-  mpd_del(a[])
 
 #@@@@@@@@@@@@@@@@@@

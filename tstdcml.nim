@@ -1,46 +1,54 @@
-import ./dcml/dcml
+import dcml/dcml
 import strformat
 
-var a = newDcml(5,2)
+
+var a = newDcml(10,2)
+
+var aa = newDcml(8,2)
+
+aa:=10
+a:=aa
+echo fmt"a:=aa {$a}"
+echo fmt"a:=aa {a.entier}"
 
 var Iint: int = 10
-a.setDcml(Iint)
+a:=Iint
 echo fmt"Iint {$a}"
 
 var Iint8: int8 = 10
-a.setDcml(Iint8)
+a:=Iint8
 echo fmt"Iint8 {$a}"
 
 var Iint16: int16 = 10
-a.setDcml(Iint16)
+a:=Iint16
 echo fmt"Iint16 {$a}"
 
 var Iint32: int32 = 10
-a.setDcml(Iint32)
+a:=Iint32
 echo fmt"Iint32 {$a}"
 
 var Iint64: int64 = 10
-a.setDcml(Iint64)
+a:=Iint64
 echo fmt"Iint64 {$a}"
 
 var Uint: uint = 10
-a.setDcml(Uint)
+a:=Uint
 echo fmt"Uint {$a}"
 
 var Uint8: uint8 = 10
-a.setDcml(Uint8)
+a:=Uint8
 echo fmt"Uint8 {$a}"
 
 var Uint16: uint16 = 10
-a.setDcml(Uint16)
+a:=Uint16
 echo fmt"Uint16 {$a}"
 
 var Uint32: uint32 = 10
-a.setDcml(Uint32)
+a:=Uint32
 echo fmt"Uint32 {$a}"
 
 var Uint64: uint64 = 10
-a.setDcml(Uint64)
+a:=Uint64
 echo fmt"Uint64 {$a}"
 
 
@@ -49,22 +57,22 @@ var Fl : float = 10.1234
 
 
 #pour test Rtrim   mettre setDcml(float) commentaire a.Rtrim
-a.setDcml(Fl)
+a:=Fl
 echo fmt"float = 10.1234  {$a}"
 a.Rtrim
 echo fmt"a.Rtrim {$a}"
 Fl=10
-a.setDcml(Fl)
+a:=Fl
 echo fmt"float = 10  {$a}"
 a.Rtrim
 echo fmt"a.Rtrim {$a}"
 Fl=10.10
-a.setDcml(Fl)
+a:=Fl
 echo fmt"float = 10.10  {$a}"
 a.Rtrim
 echo fmt"a.Rtrim {$a}"
 
-a.setDcml("10")
+a:="10"
 a+10
 echo fmt"a+10 {$a}"
 a-10
@@ -75,15 +83,15 @@ a/10
 echo fmt"a/10 {$a}"
 a//10
 echo fmt"a//10 {$a}"
-a.setDcml("10")
+a:="10"
 a^10
-echo fmt"a^10 {$a}"
+echo fmt"a^10 {a.debug}"
 
-a.setDcml("10")
+a:="10"
 
 var b = clone(a)
 
-a.setDcml("10")
+a:="10"
 a+b
 echo fmt"a+b {$a}"
 a-b
@@ -94,17 +102,18 @@ a/b
 echo fmt"a/b {$a}"
 a//b
 echo fmt"a//b {$a}"
-a.setDcml("10")
+a:="10"
 
-var e = newDcml(15,2)
+var e = newDcml(20,2)
 var i:int = 10
-e.setDcml(i)
+e:=i
+echo fmt"e {$e}"
 e^b
 echo fmt"e^b {$e}"
 e.Rtrim()
 echo fmt"e^b {$e}"
 
-a.setDcml("10")
+a:="10"
 
 
 echo fmt" a==b  {a==b}"
@@ -127,7 +136,7 @@ echo fmt" a>=b  {a>=b}"
 echo fmt" 10>=a {10<=a}"
 echo fmt" a>=10 {a<=10}"
 
-a.setDcml("1")
+a:=("1")
 
 echo fmt" a==b  {a==b}"
 echo fmt" a==10 {a==10}"
@@ -151,9 +160,6 @@ echo fmt" a>=10 {a<=10}"
 
 
 
-
-
-delDcml(a)
 
 
 echo ""
@@ -186,11 +192,17 @@ echo ""
 c.minus()
 echo fmt" c.minus() {$c}"
 
-
 echo ""
-a.setDcml("10")
-b.setDcml("20")
-c.setDcml("3")
+echo fmt" test delete (a)"
+a =nil
+echo ""
+echo fmt" redefinition var (a)  mauvais coding  only test "
+a = newDcml(10,2)
+a:=10
+
+
+b:=20
+c:=3
 var d = newDcml(15,2)
 d.fma( a, b, c)
 echo fmt" d.fma( a, b, c) {$d}"
@@ -207,43 +219,87 @@ echo fmt" d.divint(a,c) {$d}"
 
 
 echo ""
-d.setDcml(3.98)
+d:=3.98
 d.truncate()
 echo fmt" d.truncate() {$d}"
 
 
 echo ""
-d.setDcml("3.9800000")
+d:="3.9800000"
 echo fmt"c.setDcml('3.9800000') {$d}"
 d.Rtrim()
 echo fmt" d.Rtrim() {$d} \\n"
 
 
 echo ""
-d.setDcml("10.1")
+d:="10.1"
 d.Rjust()
 echo fmt" d.Rjust() {$d}"
 
 
 echo ""
-d.setDcml("10")
+d:="10"
 d.Valide()
 echo fmt" d.Valide() {$d}"
 
 echo ""
-d.setDcml("10.123456789")
+d:="10.123456789"
 d.Round(3)
 echo fmt" d.Round(3)  {$d}" 
 
 
 echo ""
-d.setDcml("10.12345")
+d:="10.12345"
 echo fmt"d.setDcml('10.12345') {$d}"
 if d.isErr() : echo $d
 else : echo "var d invalide format "
 
+
+# erreur
 echo ""
-a.setDcml("123456.12345")
-echo fmt"d.setDcml('123456.12345') {$a}"
-a.Valide()
-echo fmt" d.Valide() {$a}"
+a:=("123456789012.12345")
+echo fmt"d.setDcml('123456789012.12345') "
+if a.isErr():
+  echo fmt" a.isErr() {a.debug()}"
+
+a:=30
+
+
+
+echo fmt"{$a} + {$b} + {$c}"
+a.eval( "+",$b,"+",$c)
+
+echo $a
+
+a:=100
+
+echo fmt"{$a} / 100 * 4 + {$a}"
+a.eval( "/",100,"*",4, "+" ,$a)
+
+echo $a
+
+a:=100
+echo fmt"{$a} % 4 +$a"
+a.eval("%", 4 , "+" ,$a)
+
+echo $a
+
+
+a:=100
+echo fmt"{$a} +% 4"
+a.eval( "+%",4)
+
+echo $a
+
+a:=100
+echo fmt"{$a} -% 4"
+a.eval("-%",4)
+
+echo $a
+
+#[
+echo "erreur"
+a.eval("-%","aaa")
+
+echo $a
+]#
