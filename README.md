@@ -87,6 +87,7 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formaté
 - reslutats tstdcml.nim
 
  ```..TEST.. 
+ 
 a:=aa 10.00
 a:=aa 10
 Iint 10.00
@@ -164,14 +165,7 @@ e^b 10000000000.00
 
  test delete (a)
 
-echo ""
-echo fmt" test delete (a)"
-a =nil
-echo ""
-echo fmt" redefinition var (a)  mauvais coding  only test "
-a = newDcml(10,2)
-a:=10
-
+ redefinition var (a)  mauvais coding  only test 
  d.fma( a, b, c) 203.00
 
  d.rem(a, b) 1.00
@@ -180,7 +174,7 @@ a:=10
 
  d.truncate() 3.00
 
-c.setDcml('3.9800000') 3.98
+c:=3.9800000 3.98
  d.Rtrim() 3.98 \\n
 
  d.Rjust() 10.10
@@ -189,10 +183,10 @@ c.setDcml('3.9800000') 3.98
 
  d.Round(3)  10.12
 
-d.setDcml('10.12345') 10.12
+d:=10.12345 10.12
 var d invalide format 
 
-d.setDcml('123456789012.12345') 
+d:=123456789012.12345 
  a.isErr() 123456789012.12345
 30.00 + 20.00 + 3.00
 53.00
@@ -204,7 +198,6 @@ d.setDcml('123456789012.12345')
 104.00
 100.00 -% 4
 96.00
-
 ```
   
   
