@@ -3,11 +3,18 @@
 - démarage projet 2019/11/05
 # en test non stable
 
-- date de mise à jour 2019/11/20
-- fin des tests de contrôle de cohérence/validité dcml 2019/11/23
+- date de mise à jour 2019/11/23
+- fin des tests de contrôle de cohérence/validité dcml 2019/11/20
+- simplification le 2019/11/23 
+  - `:=` remplace setDcml
+  - supression toStr 
+  - ajout debug sortie libre sans contrôle
+  - modification sortie $ avec contrôle
+  - suppression proc delDcml inutil veuillez utiliser nil
+  
 - reste à faire
   1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
-  2 . à tester en situation interactive voir treeview.nim
+  2 . à tester en situation interactive voir treeview.nim "peut amenner des modification a nim-dcml" 
   3 . à tester en mode SQL direct
 
 - début test avec 2019/11/21 treeview.nim   encours  avec pratique Dcml (voir projet NIM_etudes)
