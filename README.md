@@ -4,7 +4,7 @@
 # en test non stable
 
 - date de mise à jour 2019/11/20
-- fin des tests de contrôle de cohérence/validité dcml 2019/11/20
+- fin des tests de contrôle de cohérence/validité dcml 2019/11/23
 - reste à faire
   1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
   2 . à tester en situation interactive voir treeview.nim
@@ -35,11 +35,11 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formate
 
 4. Formatage avec justification last zero
 
-5. setDcml  int/int8/int16/int32/int64 uint/uint8/uint16/uint32/uint64
+5. affectation de valeur (set dcml)  :=  int/int8/int16/int32/int64 uint/uint8/uint16/uint32/uint64/float/string  ex: a:=10
 
-6. setDcml string
+6. a.eval("+", $a, "/" , 100 , "*" , 4 ) etc... 
 
-7. setDcml Float
+7. debug(a):string  acces sans contrôle
 
 8. fonction
   add  sub  mult  div  divInterger  power
@@ -76,31 +76,38 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formate
 - reslutats tstdcml.nim
 
  ```..TEST.. 
-Iint 10
-Iint8 10
-Iint16 10
-Iint32 10
-Iint64 10
-Uint 10
-Uint8 10
-Uint16 10
-Uint32 10
-Uint64 10
-float 10.00
-10
-a+10 20
-a-10 10
-a*10 100
-a/10 10
-a//10 1
+a:=aa 10.00
+a:=aa 10
+Iint 10.00
+Iint8 10.00
+Iint16 10.00
+Iint32 10.00
+Iint64 10.00
+Uint 10.00
+Uint8 10.00
+Uint16 10.00
+Uint32 10.00
+Uint64 10.00
+float = 10.1234  10.12
+a.Rtrim 10.12
+float = 10  10.00
+a.Rtrim 10.00
+float = 10.10  10.10
+a.Rtrim 10.10
+a+10 20.00
+a-10 10.00
+a*10 100.00
+a/10 10.00
+a//10 1.00
 a^10 10000000000
-a+b 20
-a-b 10
-a*b 100
-a/b 10
-a//b 1
-a^b 10000000000
-
+a+b 20.00
+a-b 10.00
+a*b 100.00
+a/b 10.00
+a//b 1.00
+e 10.00
+e^b 10000000000.00
+e^b 10000000000.00
  a==b  true
  a==10 true
  10==a true
@@ -132,52 +139,60 @@ a^b 10000000000
  10>=a false
  a>=10 true
 
-
- clone(a) 10
+ clone(a) 10.00
 
  b+22.96 32.96
 
- c.ceil(b) 33
+ c.ceil(b) 33.00
 
- c.floor(b) 32
+ c.floor(b) 32.00
 
- c.plus() +32 (signed)
+ c.plus() +32.00
 
- c.minus() -32
+ c.minus() 32.00
 
+ test delete (a)
 
- a.setDcml("10")
- b.setDcml("20")
- c.setDcml("3")
- 
- 
- d.fma( a, b, c) 203
+echo ""
+echo fmt" test delete (a)"
+a =nil
+echo ""
+echo fmt" redefinition var (a)  mauvais coding  only test "
+a = newDcml(10,2)
+a:=10
 
- d.rem(a, c) 1
+ d.fma( a, b, c) 203.00
 
- d.divint(a,c) 3
+ d.rem(a, b) 1.00
 
- d.setDcml("3.98")
- d.truncate() 3
+ d.divint(a,c) 3.00
 
- c.setDcml('3.9800000') 3.9800000
- d.reduce() 3.98 \\n
+ d.truncate() 3.00
 
- d.setDcml('10.1') 10.1
+c.setDcml('3.9800000') 3.98
+ d.Rtrim() 3.98 \\n
+
  d.Rjust() 10.10
 
-d.setDcml('10') 10
-d.Valide() 10.00
+ d.Valide() 10.00
 
- d.setDcml('10.123456') 10.123456
- d.Round(3) 10.123
+ d.Round(3)  10.12
 
-d.setDcml('10.12345') 10.12345
-if d.isErr()==true:   message "var d'invalide format" 
+d.setDcml('10.12345') 10.12
+var d invalide format 
 
-d.setDcml('123456.12345') 123456.12345
-dcml.nim(694)            Valide
-Error: unhandled exception: Overlay Digit Valide() value:123456.12345  [DecimalError]
+d.setDcml('123456789012.12345') 
+ a.isErr() 123456789012.12345
+30.00 + 20.00 + 3.00
+53.00
+100.00 / 100 * 4 + 100.00
+104.00
+100.00 % 4 +$a
+104.00
+100.00 +% 4
+104.00
+100.00 -% 4
+96.00
 
 ```
   
