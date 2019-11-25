@@ -1014,40 +1014,54 @@ proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
       case signe:
         of "=" :
           n:=r
+          signe=""
+          
         of "+" :
           n+=r
         of "-" :
           n-=r
+          signe=""
+
         of "*" :
           n*=r
+          signe=""
+
         of "/" :
           n/=r
+          signe=""
+
         of "%" :
           n/=100
           n*=r
+          signe=""
+
         of "+%" :
           s:=n
           s/=100
           s*=r
           n+=s
+          signe=""
 
         of "-%" :
           s:=n
           s/=100
           s*=r
           n-=s
+          signe=""
 
         of "*%" :
           s:=n
           s/=100
           s*=r
           n*=s
+          signe=""
 
         of "/%" :
           s:=n
           s/=100
           s*=r
           n/=s
+          signe=""
 
         else:
           raise newException(DecimalError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
