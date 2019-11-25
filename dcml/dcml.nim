@@ -1001,15 +1001,19 @@ proc Rtrim*(a: DecimalType) =
 
 proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
   var r = clone(n)
-  var sav = clone(n)
+  var s:DecimalType
+  new s, deleteDecimal
+  s[] = mpd_qnew()
   var signe : string
 
   for x in xs:
-    if x == "+" or x == "-" or x == "*" or x == "/" or x == "%" or x == "+%" or x == "-%":
+    if x == "=" or x == "+" or x == "-" or x == "*" or x == "/" or x == "%" or x == "+%" or x == "-%" or x == "*%" or x == "/%":
       signe = x
     else :
       r:= x
       case signe:
+        of "=" :
+          n:=r
         of "+" :
           n+=r
         of "-" :
@@ -1022,16 +1026,29 @@ proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
           n/=100
           n*=r
         of "+%" :
-          sav:=n
-          sav/=100
-          sav*=r
-          n+=sav
+          s:=n
+          s/=100
+          s*=r
+          n+=s
 
         of "-%" :
-          sav:=n
-          sav/=100
-          sav*=r
-          n-=sav
+          s:=n
+          s/=100
+          s*=r
+          n-=s
+
+        of "*%" :
+          s:=n
+          s/=100
+          s*=r
+          n*=s
+
+        of "/%" :
+          s:=n
+          s/=100
+          s*=r
+          n/=s
+
         else:
           raise newException(DecimalError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
 

@@ -303,3 +303,75 @@ a.eval("-%","aaa")
 
 echo $a
 ]#
+
+
+
+var article    :string  =""
+var poids      = newDcml(3,1)  # tonnes ex 1.5 tonnes
+var prixBase   = newDcml(8,2)  # montant achat de la tonne
+var prixGramme = newDcml(3,15) # montant achat du gramme
+var refund     = newDcml(2,2)  # % refund
+var prixAchat  = newDcml(8,2)  # montant achat
+var poidsUnite = newDcml(5,1)  # poids en grammes de l'article
+var prixBrut   = newDcml(4,15) # prix brut de l'article
+var increase   = newDcml(2,3)  # % increase usinage spécifique 
+var prixFab    = newDcml(4,15) # prix fabrication brut + 40% gestion salaire investissement ....
+var poidsFab   = newDcml(5,2)  # poids d'un article à la fabrication gramme
+var nbrArticle = newDcml(15,0) # nombre d'artcile fab maxi.
+var prixVente  = newDcml(4,2)  # prix de vente unitaire de base
+var gainUnite  = newDcml(4,15) # profit sur un article
+
+var benefice   = newDcml(18,2) # benefice par tonne
+
+
+article = "vis Acier"
+# 2 tonnes
+poids := 5
+
+# 450€ tonne
+prixBase := 450
+
+# 0.000450€ gr
+prixGramme.eval("=",$prixBase,"/" ,1000000)
+
+
+# remise
+refund := 1.5
+prixAchat.eval("=", $poids , "*", $prixBase, "+%",$refund)
+
+
+# poids 1 vis
+poidsUnite := 1.2
+# gache
+increase := 0.005
+
+# poids fabrication
+poidsFab.eval("=" ,$poidsUnite, "+%", $increase)
+
+
+
+# calcul du prix de fabrication
+prixFab.eval("=", $poidsUnite, "+%",$increase,"*" ,$prixGramme,"+%",40)
+
+# calcul du nombre article  
+nbrArticle.eval("=",$poids, "*",1000000, "/", $poidsFab , "-%", 0.001)
+
+
+echo fmt" Poids :  {$poids} tonnes   PrixBase : {$prixbase} remise : {$refund}  prixAchat = {$prixAchat} "
+echo " "
+echo fmt" poidsUnite : {$poidsUnite} grm +  gache : {$increase}%   * prixGramme : {$prixgramme} + 40% (frais gestion Entreprise)  Prix de fabrication = {$prixFab}"
+
+echo fmt" poids: {$poids} * 1000000 (poids en gramme)  / poidFab : {$poidsFab} grm  - 0.001% de perte manutention   Nombre article = {$nbrArticle}"
+
+prixVente := 0.10 #cts soit 1€ les dix
+
+gainUnite.eval( "=" , $prixVente , "-" , $prixFab )
+
+echo fmt"gainUnite sur un article {gainUnite}"
+
+benefice.eval("=" , $gainUnite ,  "*" ,$nbrArticle , "-", $prixAchat )
+
+
+echo fmt"benefice effet de masse  gainUnite: {$gainUnite}   * nbrArticle: {$nbrArticle }  - prixAchat: {$prixAchat} benefice= {$benefice}"
+
+echo "fin"
