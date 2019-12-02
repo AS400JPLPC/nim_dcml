@@ -1,7 +1,7 @@
 # nim_dcml
 
 - démarage projet 2019/11/05
-# en test non stable
+# en test
 
 - date de mise à jour 2019/11/25
 - fin des tests de contrôle de cohérence/validité dcml 2019/11/20
