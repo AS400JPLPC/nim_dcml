@@ -14,7 +14,10 @@
   - suppression proc delDcml inutil veuillez utiliser nil
   - encours de test structure Reccord Enrg... 
 - test réel valeur et ajout fonction dans eval  le 2019/11/25
-  
+
+- suppression  fma 2019/12/09
+- contrôle import
+
 - reste à faire
 
   1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
@@ -67,7 +70,6 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formaté
   (signed) plus minus
   
   divint (Integer division)
-
   
   rem (remainder)
   
