@@ -204,8 +204,8 @@ a:=10
 b:=20
 c:=3
 var d = newDcml(15,2)
-d.fma( a, b, c)
-echo fmt" d.fma( a, b, c) {$d}"
+
+
 
 
 echo ""

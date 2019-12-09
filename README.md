@@ -66,8 +66,7 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formaté
   (signed) plus minus
   
   divint (Integer division)
-  
-  fma ( a mult b  add c )
+
   
   rem (remainder)
   
@@ -167,7 +166,7 @@ e^=b 10000000000.00
  test delete (a)
 
  redefinition var (a)  mauvais coding  only test 
- d.fma( a, b, c) 203.00
+
 
  d.rem(a, b) 1.00
 
