@@ -169,6 +169,7 @@ when not declared(Dcml) :
         raise newException(DcmlError, "Decimal failed to newDecimal(String)")
     sVal = x
     mpd_set_string(a[], sVal, CTX_ADDR)
+    a.Rjust()
   
   
   
@@ -1030,7 +1031,6 @@ when not declared(Dcml) :
         signe = x
       else :
         r:= x
-        r.Rjust()
         case signe:
           of "=" :
             n:=r
