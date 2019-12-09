@@ -15,7 +15,8 @@
   - encours de test structure Reccord Enrg... 
 - test réel valeur et ajout fonction dans eval  le 2019/11/25
 
-- suppression  fma 2019/12/09
+- suppression  fma 2019/12/09  correctif  
+- :=(string)->format result decimal (Rjust) 
 - contrôle import
 
 - reste à faire
