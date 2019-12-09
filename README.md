@@ -1,9 +1,9 @@
 # nim_dcml
 
 - démarage projet 2019/11/05
-# en test non stable
+# en test
 
-- date de mise à jour 2019/11/23
+- date de mise à jour 2019/11/25
 - fin des tests de contrôle de cohérence/validité dcml 2019/11/20
 - simplification le 2019/11/23
   - harmonistaion en fonction de nim-decimal
@@ -13,6 +13,7 @@
   - modification sortie $ avec contrôle
   - suppression proc delDcml inutil veuillez utiliser nil
   - encours de test structure Reccord Enrg... 
+- test réel valeur et ajout fonction dans eval  le 2019/11/25
   
 - reste à faire
 
