@@ -10,7 +10,7 @@ import strformat
 from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat,delete
 import typeinfo
 
-when not declared(Zoned) :
+when not declared(DecimalType) :
 
   type
     DecimalType* = ref[ptr mpd_t]

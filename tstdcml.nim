@@ -193,10 +193,10 @@ c.minus()
 echo fmt" c.minus() {$c}"
 
 echo ""
-echo fmt" test delete (a)"
+echo fmt" test delete (a)  a =nil "
 a =nil
 echo ""
-echo fmt" redefinition var (a)  mauvais coding  only test "
+echo fmt" redefinition var (a)  mauvais coding  only test  a = newDcml(10,2)"
 a = newDcml(10,2)
 a:=10
 
