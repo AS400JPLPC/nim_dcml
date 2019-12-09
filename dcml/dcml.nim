@@ -1,6 +1,7 @@
 # Decimal
 # Copyright (c) 2018 Status Research & Development GmbH
 # Licensed and distributed under either of
+# origine : https://github.com/status-im/nim-decimal
 #   * MIT license (license terms in the root directory or at http://opensource.org/licenses/MIT).
 #   * Apache v2 license (license terms in the root directory or at http://www.apache.org/licenses/LICENSE-2.0).
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
@@ -10,11 +11,11 @@ import strformat
 from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat,delete
 import typeinfo
 
-when not declared(DecimalType) :
+when not declared(Dcml) :
 
   type
-    DecimalType* = ref[ptr mpd_t]
-    DecimalError* = object of Exception
+    Dcml* = ref[ptr mpd_t]
+    DcmlError* = object of Exception
   
   const
     DEFAULT_PREC = MPD_RDIGITS * 2
@@ -31,30 +32,57 @@ when not declared(DecimalType) :
   #------------------
   let cMaxDigit : uint8 = 38
   
-  proc Valide*(a: DecimalType)
-  proc Rtrim*(a: DecimalType)
-  
+  proc Valide*(a: Dcml)
+  proc Rtrim*(a: Dcml)
+  proc Round*(a: Dcml; iScale:int )
+  proc Rjust*(a: Dcml)
   #------------------
   
   
-  proc deleteDecimal(x: DecimalType) =
+  proc deleteDecimal(x: Dcml) =
     if not x.isNil:          # Managed by Nim
       assert(not(x[].isNil)) # Managed by MpDecimal
       mpd_del(x[])
   
   
-  proc `$`*(a: DecimalType): string =
-      ## Convert DecimalType to string for SQL format
+ 
+  #----------------------------------------------------
+  ## BORNAGE POUR LA GESTION compta : stock etc....
+  #----------------------------------------------------  
+  
+  proc newDcml*( iEntier: uint8 ; iScale : uint8 ): Dcml =
+    ## Initialize a empty Dcml
+  
+    if iEntier + iScale  > cMaxDigit or ( iEntier == 0 and iScale == 0 ):
+      raise newException(DcmlError, fmt"Failed Init {iEntier},{iScale}")
+  
+    var i:int = parseInt(fmt"{cMaxDigit}")
+    let success = mpd_qsetprec(CTX_ADDR, i)
+    if success == 0:
+      raise newException(DcmlError, fmt"Couldn't set precision {cMaxDigit} ")
+  
+    var r:Dcml
+    new r, deleteDecimal
+    r[] = mpd_qnew()
+    r.entier = iEntier
+    r.scale  = iScale
+    mpd_set_string(r[], "0", CTX_ADDR)
+    return r
+
+
+
+  proc `$`*(a: Dcml): string =
+      ## Convert Dcml to string for SQL format
       a.Valide()
       $mpd_to_sci(a[], 0)
   
   # edit val sans contrôle 
-  proc debug*(a: DecimalType):string =
-    ## Convert DecimalType to string natural of basic mpd
+  proc debug*(a: Dcml):string =
+    ## Convert Dcml to string natural of basic mpd
     $mpd_to_sci(a[], 0)
   
-  proc signed*(a: DecimalType): string =
-    ## Convert DecimalType to string force signed '+'
+  proc signed*(a: Dcml): string =
+    ## Convert Dcml to string force signed '+'
     var s: string = $mpd_to_sci(a[], 0)
     if s[0].isDigit == true : return fmt"+{s}"
     else: return fmt"{s}"
@@ -63,15 +91,15 @@ when not declared(DecimalType) :
   
   
   
-  proc clone*(a: DecimalType): DecimalType =
-    ## Clone a DecimalType and returns a new independent one
+  proc clone*(a: Dcml): Dcml =
+    ## Clone a Dcml and returns a new independent one
     var status: uint32
-    var r:DecimalType
+    var r:Dcml
     new r, deleteDecimal
     r[] = mpd_qnew()
     let success = mpd_qcopy(r[], a[], addr status)
     if success == 0:
-      raise newException(DecimalError, "Decimal failed to copy")
+      raise newException(DcmlError, "Decimal failed to copy")
     r.entier = a.entier
     r.scale  = a.scale
     return r
@@ -85,15 +113,15 @@ when not declared(DecimalType) :
   
   
   ## assignement valeur 
-  proc `:=`*(a, b : DecimalType) =
+  proc `:=`*(a, b : Dcml) =
     var status: uint32
     mpd_copy_data(a[],b[],addr status)
   
-  template `:=`*[T: SomeNumber ](a: DecimalType, x: T) =
+  template `:=`*[T: SomeNumber ](a: Dcml, x: T) =
     ## ADD decimal from X
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -126,10 +154,10 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération :=")
+        raise newException(DcmlError, "Failed opération :=")
     a := b
   
-  proc `:=`*(a : DecimalType, x:string) =
+  proc `:=`*(a : Dcml, x:string) =
     var sVal:string = x
     #test par defaut
     if (sVal == "" or sVal=="0" ) :  
@@ -138,7 +166,7 @@ when not declared(DecimalType) :
       sVal = sVal.replace("-","" )
       sVal = sVal.replace(".","" )
       if sVal.isDigit() == false :  
-        raise newException(DecimalError, "Decimal failed to newDecimal(String)")
+        raise newException(DcmlError, "Decimal failed to newDecimal(String)")
     sVal = x
     mpd_set_string(a[], sVal, CTX_ADDR)
   
@@ -147,16 +175,16 @@ when not declared(DecimalType) :
   
   
   
-  proc `+=`*(a, b: DecimalType)=
+  proc `+=`*(a, b: Dcml)=
     var status: uint32
     mpd_qadd(a[], a[], b[], CTX_ADDR, addr status)
   
   
-  template `+=`*[T: SomeNumber](a: DecimalType, x: T) =
+  template `+=`*[T: SomeNumber](a: Dcml, x: T) =
     ## ADD decimal from X
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -189,24 +217,24 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération +")
+        raise newException(DcmlError, "Failed opération +")
     a += b
   
   
   
   
   
-  proc `-=`*(a, b: DecimalType) =
+  proc `-=`*(a, b: Dcml) =
     ## SUB decimal from X
     var status: uint32
     mpd_qsub(a[], a[], b[], CTX_ADDR, addr status)
   
   
   
-  template `-=`*[T: SomeNumber](a: DecimalType, x: T)=
+  template `-=`*[T: SomeNumber](a: Dcml, x: T)=
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -239,22 +267,22 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération -")
+        raise newException(DcmlError, "Failed opération -")
     a -= b
   
   
   
   
   
-  proc `*=`*(a, b: DecimalType)=
+  proc `*=`*(a, b: Dcml)=
     ## MULT decimal from X
     var status: uint32
     mpd_qmul(a[], a[], b[], CTX_ADDR, addr status)
   
-  template `*=`*[T: SomeNumber](a: DecimalType, x: T) =
+  template `*=`*[T: SomeNumber](a: Dcml, x: T) =
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -287,22 +315,22 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération *")
+        raise newException(DcmlError, "Failed opération *")
     a *= b
   
   
   
   
   
-  proc `/=`*(a, b: DecimalType) =
+  proc `/=`*(a, b: Dcml) =
     ## DIV decimal from X
     var status: uint32
     mpd_qdiv(a[], a[], b[], CTX_ADDR, addr status)
   
-  template `/=`*[T: SomeNumber](a: DecimalType, x: T)=
+  template `/=`*[T: SomeNumber](a: Dcml, x: T)=
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -335,23 +363,23 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération /")
+        raise newException(DcmlError, "Failed opération /")
     a /= b
   
   
   
   
   
-  proc `//=`*(a, b: DecimalType)=
+  proc `//=`*(a, b: Dcml)=
     ## DIVINTEGER  decimal from X
     var status: uint32
     mpd_qdivint(a[], a[], b[], CTX_ADDR, addr status)
   
   
-  template `//=`*[T: SomeNumber](a: DecimalType, x: T)=
+  template `//=`*[T: SomeNumber](a: Dcml, x: T)=
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -376,31 +404,30 @@ when not declared(DecimalType) :
   
       of akUInt :
         when (sizeof(uint(x)) == 8):
-          mpd_set_u64(b[], uint64(x), CTX_ADDR)
-        else:
+          mpd_set_u64(b[], uint64(x), CTX_ADDR)formatFloat
           mpd_set_u32(b[], uint32(x), CTX_ADDR)
   
       of akFloat :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération //")
+        raise newException(DcmlError, "Failed opération //")
     a //= b
   
   
   
   
   
-  proc `^=`*(a, b: DecimalType) =
+  proc `^=`*(a, b: Dcml) =
     ## POWER   decimal from X
     var status: uint32
     mpd_qpow(a[], a[], b[], CTX_ADDR, addr status)
   
   
-  template `^=`*[T: SomeNumber](a: DecimalType, x: T)=
+  template `^=`*[T: SomeNumber](a: Dcml, x: T)=
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -433,7 +460,7 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération ^")
+        raise newException(DcmlError, "Failed opération ^")
     a ^= b
   
   
@@ -446,7 +473,7 @@ when not declared(DecimalType) :
   
   ## comparaison
   
-  proc `==`*(a, b: DecimalType): bool =
+  proc `==`*(a, b: Dcml): bool =
     var status: uint32
     let cmp = mpd_qcmp(a[], b[], addr status)
     if cmp == 0:
@@ -454,10 +481,10 @@ when not declared(DecimalType) :
     else:
       return false
   
-  template `==`*[T: SomeNumber](a: DecimalType, x: T):bool=
+  template `==`*[T: SomeNumber](a: Dcml, x: T):bool=
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -491,13 +518,13 @@ when not declared(DecimalType) :
         mpd_set_string(b[], s, CTX_ADDR)
         b.Rtrim()
       else :
-        raise newException(DecimalError, "Failed opération ==")
+        raise newException(DcmlError, "Failed opération ==")
     a == b
   
-  template `==`*[T: SomeNumber](x: T, b: DecimalType):bool =
+  template `==`*[T: SomeNumber](x: T, b: Dcml):bool =
     var n = x
   
-    var a:DecimalType
+    var a:Dcml
     new a, deleteDecimal
     a[] = mpd_qnew()
   
@@ -530,12 +557,12 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(a[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération ==")
+        raise newException(DcmlError, "Failed opération ==")
     a == b
   
   
   
-  proc `<`*(a, b: DecimalType): bool =
+  proc `<`*(a, b: Dcml): bool =
     var status: uint32
     let cmp = mpd_qcmp(a[], b[], addr status)
     if cmp == -1:
@@ -543,10 +570,10 @@ when not declared(DecimalType) :
     else:
       return false
   
-  template `<`*[T: SomeNumber](a: DecimalType, x: T):bool =
+  template `<`*[T: SomeNumber](a: Dcml, x: T):bool =
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -579,13 +606,13 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération <")
+        raise newException(DcmlError, "Failed opération <")
     a < b
   
-  template `<`*[T: SomeNumber](x: T, b: DecimalType):bool =
+  template `<`*[T: SomeNumber](x: T, b: Dcml):bool =
     var n = x
   
-    var a:DecimalType
+    var a:Dcml
     new a, deleteDecimal
     a[] = mpd_qnew()
   
@@ -618,19 +645,19 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(a[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération <")
+        raise newException(DcmlError, "Failed opération <")
     a < b
     
-  proc `<=`*(a, b: DecimalType): bool =
+  proc `<=`*(a, b: Dcml): bool =
     let less_cmp = a < b
     if less_cmp: return true
     let equal_cmp = a == b
     if equal_cmp: return true
     return false
-  template `<=`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  template `<=`*[T: SomeNumber](a: Dcml, x: T): bool =
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -663,13 +690,13 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération <=")
+        raise newException(DcmlError, "Failed opération <=")
     a <= b
   
-  template `<=`*[T: SomeNumber](x: T, b: DecimalType): bool =
+  template `<=`*[T: SomeNumber](x: T, b: Dcml): bool =
     var n = x
   
-    var a:DecimalType
+    var a:Dcml
     new a, deleteDecimal
     a[] = mpd_qnew()
   
@@ -702,13 +729,13 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(a[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération <=")
+        raise newException(DcmlError, "Failed opération <=")
     a <= b
   
   
   
   
-  proc `>`*(a, b: DecimalType): bool =
+  proc `>`*(a, b: Dcml): bool =
     var status: uint32
     let cmp = mpd_qcmp(a[], b[], addr status)
     if cmp == 1:
@@ -716,10 +743,10 @@ when not declared(DecimalType) :
     else:
       return false
   
-  template `>`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  template `>`*[T: SomeNumber](a: Dcml, x: T): bool =
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -752,14 +779,14 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération >")
+        raise newException(DcmlError, "Failed opération >")
     a > b
   
   
-  template `>`*[T: SomeNumber](x: T, b: DecimalType) : bool=
+  template `>`*[T: SomeNumber](x: T, b: Dcml) : bool=
     var n = x
   
-    var a:DecimalType
+    var a:Dcml
     new a, deleteDecimal
     a[] = mpd_qnew()
   
@@ -792,10 +819,10 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(a[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération >")
+        raise newException(DcmlError, "Failed opération >")
     a > b
-    
-  proc `>=`*(a, b: DecimalType): bool =
+
+  proc `>=`*(a, b: Dcml): bool =
     let less_cmp = a > b
     if less_cmp: return true
     let equal_cmp = a == b
@@ -803,10 +830,10 @@ when not declared(DecimalType) :
     return false
   
   
-  template `>=`*[T: SomeNumber](a: DecimalType, x: T): bool =
+  template `>=`*[T: SomeNumber](a: Dcml, x: T): bool =
     var n = x
   
-    var b:DecimalType
+    var b:Dcml
     new b, deleteDecimal
     b[] = mpd_qnew()
   
@@ -839,14 +866,14 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération >=")
+        raise newException(DcmlError, "Failed opération >=")
     a >= b
   
   
-  template `>=`*[T: SomeNumber](x: T, b: DecimalType) : bool =
+  template `>=`*[T: SomeNumber](x: T, b: Dcml) : bool =
     var n = x
     
-    var a:DecimalType
+    var a:Dcml
     new a, deleteDecimal
     a[] = mpd_qnew()
   
@@ -867,7 +894,7 @@ when not declared(DecimalType) :
         mpd_set_u32(a[], uint32(x), CTX_ADDR)
   
       of akUInt64 :
-        mpd_set_u64(a[], uint64(x), CTX_ADDR)
+        mpd_set_u64(a[], uint64(x), CTX_ADDR)formatFloat
   
       of akUInt :
         when (sizeof(uint(x)) == 8):
@@ -879,7 +906,7 @@ when not declared(DecimalType) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(a[], s, CTX_ADDR)
       else :
-        raise newException(DecimalError, "Failed opération >=")
+        raise newException(DcmlError, "Failed opération >=")
     a >= b
   
   
@@ -901,14 +928,14 @@ when not declared(DecimalType) :
   ## Math functions
   ##----------------------------------------------------------------------------
   
-  proc divint*(r,a, b: DecimalType) =
+  proc divint*(r,a, b: Dcml) =
     ## Integer division, same ass //
     var status: uint32
     mpd_qdivint(r[], a[], b[], CTX_ADDR, addr status)
   
   
   
-  proc rem*(r ,a, b: DecimalType) =
+  proc rem*(r ,a, b: Dcml) =
     ## Returns the remainder of the division a/b
     var status: uint32
     mpd_qrem(r[], a[], b[], CTX_ADDR, addr status)
@@ -917,14 +944,14 @@ when not declared(DecimalType) :
   
   # Math functions
   
-  proc minus*(a: DecimalType) =
+  proc minus*(a: Dcml) =
     ## Negation operator
     var status: uint32
     mpd_qminus(a[], a[], CTX_ADDR, addr status)
   
   
   
-  proc plus*(a: DecimalType) =
+  proc plus*(a: Dcml) =
     var status: uint32
     mpd_qplus(a[], a[], CTX_ADDR, addr status)
     var sPlus:string = $mpd_to_sci(a[], 0)
@@ -933,37 +960,37 @@ when not declared(DecimalType) :
   
   
   
-  proc floor*(r,a: DecimalType) =
+  proc floor*(r,a: Dcml) =
     ## Return the nearest integer towards -infinity
     var status: uint32
     mpd_qfloor(r[], a[], CTX_ADDR, addr status)
   
   
   
-  proc ceil*(r,a: DecimalType) =
+  proc ceil*(r,a: Dcml) =
     ## Return the nearest integer towards +infinity
     var status: uint32
     mpd_qceil(r[], a[], CTX_ADDR, addr status)
   
   
-  proc truncate*(a: DecimalType) =
+  proc truncate*(a: Dcml) =
     ## Return the truncated value of a
     var status: uint32
     mpd_qtrunc(a[], a[], CTX_ADDR, addr status)
   
   
   
-  proc finalize*(a: DecimalType) =
+  proc finalize*(a: Dcml) =
     ## Apply the current context to a
     var status: uint32
     mpd_qfinalize(a[], CTX_ADDR, addr status)
   
   
-  proc Rtrim*(a: DecimalType) =
+  proc Rtrim*(a: Dcml) =
     if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-      raise newException(DecimalError, fmt"Failed Init : Rtrim value:{$mpd_to_sci(a[], 0)}")
+      raise newException(DcmlError, fmt"Failed Init : Rtrim value:{$mpd_to_sci(a[], 0)}")
     ## trailing zeros removed
-    var r:DecimalType
+    var r:Dcml
     new r, deleteDecimal
     r[] = mpd_qnew()
   
@@ -991,9 +1018,9 @@ when not declared(DecimalType) :
   
   
   
-  proc eval*(n:DecimalType ,xs: varargs[string, `$`]) =
+  proc eval*(n:Dcml ,xs: varargs[string, `$`]) =
     var r = clone(n)
-    var s:DecimalType
+    var s:Dcml
     new s, deleteDecimal
     s[] = mpd_qnew()
     var signe : string
@@ -1003,6 +1030,7 @@ when not declared(DecimalType) :
         signe = x
       else :
         r:= x
+        r.Rjust()
         case signe:
           of "=" :
             n:=r
@@ -1056,19 +1084,19 @@ when not declared(DecimalType) :
             signe=""
   
           else:
-            raise newException(DecimalError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
-  
+            raise newException(DcmlError, fmt"Failed : eval value:{$mpd_to_sci(n[], 0)}")
+
   
   #---------------------------------------
   # contrôle len buffer and caractéristique  
   # maximun 38 digits
   #---------------------------------------
   
-  proc isErr*(a: DecimalType):bool =
+  proc isErr*(a: Dcml):bool =
     if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-      raise newException(DecimalError, fmt"Failed Init : isErr value:{$mpd_to_sci(a[], 0)}")
+      raise newException(DcmlError, fmt"Failed Init : isErr value:{$mpd_to_sci(a[], 0)}")
     ## contrôle dépassement capacité
-    var r:DecimalType
+    var r:Dcml
     new r, deleteDecimal
     r[] = mpd_qnew()
     r = clone(a)
@@ -1103,88 +1131,31 @@ when not declared(DecimalType) :
   # formatage 
   # alustement rigth zeros
   #---------------------------------------
-  proc Rjust*(a: DecimalType)=
+  proc Rjust*(a: Dcml)=
     if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-      raise newException(DecimalError, fmt"Failed Init : Rjust value:{$mpd_to_sci(a[], 0)}")
+      raise newException(DcmlError, fmt"Failed Init : Rjust value:{$mpd_to_sci(a[], 0)}")
     let padding = '0'
   
     var iScale:int = int(a.scale)
     var sNumber:string = $mpd_to_sci(a[], 0)
-    var iLen: int = sNumber.len()
+    var iLen: int
+    var iRst: int
     var iPos: int = sNumber.find('.')
-  
-    if iPos >= 0 : iPos += int(1)
+
+    if iScale == 0 : return
+
+    if iPos == -1 :
+      sNumber.add(".")
+
+
+    iPos = sNumber.find('.')
+    iLen  = sNumber.len() - 1
     # nombre de digit manquant
-    iLen -= iPos
+    iRst = iLen - iPos
+    if iRst < iScale :
+      sNumber.add(padding.repeat(iScale - iRst))
+      mpd_set_string(a[], sNumber, CTX_ADDR)
   
-    if iLen < iScale :
-      sNumber.add(padding.repeat(iLen))
-    mpd_set_string(a[], sNumber, CTX_ADDR)
-  
-  
-  
-  #---------------------------------------
-  # contrôle &  validité PAS D'ARRONDI 
-  # formatage 
-  # maximun 38 digits
-  #---------------------------------------
-  
-  proc Valide*(a: DecimalType) =
-    ## controle dépassement capacité
-    if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-      raise newException(DecimalError, fmt"Failed Init : Valide value:{$mpd_to_sci(a[], 0)}")
-    var status: uint32
-    var CTXN: mpd_context_t
-    var CTX_CTRL = addr CTXN
-    CTX_CTRL.round = MPD_ROUND_05UP
-  
-  
-    var iEntier:int = int(a.entier)
-  
-    var iScale:int = int(a.scale)
-  
-    var sEntier:string
-  
-    var i :int 
-    var r:DecimalType
-    new r, deleteDecimal
-    r[] = mpd_qnew()
-    # control partie entiere
-  
-    r.floor(a)
-  
-    sEntier= $mpd_to_sci(r[], 0)
-    sEntier = sEntier.replace("+","" )
-    sEntier = sEntier.replace("-","" )
-    i = sEntier.len
-  
-    # dcml(0.x) on ne compte pas si 0 entier
-    if i == 1 and  sEntier[0] == '0':
-      i = 0
-  
-    if i > iEntier :
-      raise newException(DecimalError, fmt"Overlay Digit : Valide value:{$mpd_to_sci(a[], 0)} ") 
-  
-    ## formatages 
-    ## suppression des digits scale en trop  
-  
-  
-    if iScale != 0 :
-      if r == a :
-        sEntier= fmt"{sEntier}."
-        for i in 1..iScale :
-          sEntier = fmt"{sEntier}0"
-        mpd_set_string(r[], sEntier, CTX_ADDR)
-      else :
-        mpd_copy_data(r[],a[],addr status)
-        for i in 1..iScale :
-          r*=10
-        r.truncate()
-        for i in 1..iScale :
-          r/=10
-    
-    mpd_copy_data(a[],r[],addr status)
-    a.Rjust()
   
   
   #---------------------------------------
@@ -1193,14 +1164,14 @@ when not declared(DecimalType) :
   # maximun 38 digits 
   #---------------------------------------
   
-  proc Round*(a: DecimalType; iScale:int )=
+  proc Round*(a: Dcml; iScale:int )=
     var status: uint32
     var CTXN: mpd_context_t
     var CTX_CTRL = addr CTXN
     CTX_CTRL.round = MPD_ROUND_05UP
   
     var i:int
-    var r:DecimalType
+    var r:Dcml
     new r, deleteDecimal
     r[] = mpd_qnew()
     r:=a
@@ -1217,33 +1188,65 @@ when not declared(DecimalType) :
       r.floor(r)
   
     mpd_copy_data(a[],r[],addr status)
+
+  #---------------------------------------
+  # contrôle &  validité PAS D'ARRONDI 
+  # formatage 
+  # maximun 38 digits
+  #---------------------------------------
+  
+  proc Valide*(a: Dcml) =
+    ## controle dépassement capacité
+    if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
+      raise newException(DcmlError, fmt"Failed Init : Valide value:{$mpd_to_sci(a[], 0)}")
+    var status: uint32
+    var CTXN: mpd_context_t
+    var CTX_CTRL = addr CTXN
+    CTX_CTRL.round = MPD_ROUND_05UP
   
   
+    var iEntier:int = int(a.entier)
   
-  #@@@@@@@@@@@@@@@@@@
-  #----------------------------------------------------
-  # BORNAGE POUR LA GESTION compta : stock etc....
-  # arrivé decimal SQL  frmStr 
-  #----------------------------------------------------
+    var iScale:int = int(a.scale)
   
+    var sEntier:string
   
-  
-  proc newDcml*( iEntier: uint8 ; iScale : uint8 ): DecimalType =
-    ## Initialize a empty DecimalType
-  
-    if iEntier + iScale  > cMaxDigit or ( iEntier == 0 and iScale == 0 ):
-      raise newException(DecimalError, fmt"Failed Init {iEntier},{iScale}")
-  
-    var i:int = parseInt(fmt"{cMaxDigit}")
-    let success = mpd_qsetprec(CTX_ADDR, i)
-    if success == 0:
-      raise newException(DecimalError, fmt"Couldn't set precision {cMaxDigit} ")
-  
-    var r:DecimalType
+    var i :int 
+    var r:Dcml
     new r, deleteDecimal
     r[] = mpd_qnew()
-    r.entier = iEntier
-    r.scale  = iScale
-    mpd_set_string(r[], "0", CTX_ADDR)
-    return r
-  #@@@@@@@@@@@@@@@@@@
+    # control partie entiere
+  
+    r.floor(a)
+  
+    sEntier= $mpd_to_sci(r[], 0)
+    sEntier = sEntier.replace("+","" )
+    sEntier = sEntier.replace("-","" )
+    i = sEntier.len
+  
+    # dcml(0.x) on ne compte pas si 0 entier
+    if i == 1 and  sEntier[0] == '0':
+      i = 0
+  
+    if i > iEntier :
+      raise newException(DcmlError, fmt"Overlay Digit : Valide value:{$mpd_to_sci(a[], 0)} ") 
+  
+    ## formatages 
+    ## suppression des digits scale en trop  
+
+    if iScale != 0 :
+      if r == a :
+        sEntier= fmt"{sEntier}."
+        for i in 1..iScale :
+          sEntier = fmt"{sEntier}0"
+        mpd_set_string(r[], sEntier, CTX_ADDR)
+      else :
+        mpd_copy_data(r[],a[],addr status)
+        for i in 1..iScale :
+          r*=10
+        r.truncate()
+        for i in 1..iScale :
+          r/=10
+    
+    mpd_copy_data(a[],r[],addr status)
+    a.Rjust()
