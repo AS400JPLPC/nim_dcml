@@ -25,7 +25,6 @@
 
   2 . à tester en situation interactive voir treeview.nim
 
-  3 . à tester en mode SQL direct
 
 - début test avec 2019/11/21 treeview.nim   encours  avec pratique Dcml (voir projet NIM_etudes)
 
