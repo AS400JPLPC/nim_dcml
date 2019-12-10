@@ -405,7 +405,8 @@ when not declared(Dcml) :
   
       of akUInt :
         when (sizeof(uint(x)) == 8):
-          mpd_set_u64(b[], uint64(x), CTX_ADDR)formatFloat
+          mpd_set_u64(b[], uint64(x), CTX_ADDR)
+        else:
           mpd_set_u32(b[], uint32(x), CTX_ADDR)
   
       of akFloat :
