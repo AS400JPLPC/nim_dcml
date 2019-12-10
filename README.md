@@ -18,6 +18,7 @@
 - suppression  fma 2019/12/09  correctif  
 - :=(string)->format result decimal (Rjust) 
 - contrôle import
+- 2019/12/11 correctif ligne 458 dcml.nim  (erreur ??? VsCode) regénération et commit depot
 
 - reste à faire
 
