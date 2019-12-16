@@ -30,7 +30,7 @@ when not declared(Dcml) :
   
   #@@@@@@@@@@@@@@@@@@
   #------------------
-  let cMaxDigit : uint8 = 38
+  let cMaxDigit : uint8 = 34
   
   proc Valide*(a: Dcml)
   proc Rtrim*(a: Dcml)
