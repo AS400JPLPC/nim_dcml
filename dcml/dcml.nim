@@ -54,7 +54,7 @@ when not declared(Dcml) :
   ## BORNAGE POUR LA GESTION compta : stock etc....
   #----------------------------------------------------  
   
-  proc newDcml*( iEntier: uint8 ; iScale : uint8; nullable : bool ): Dcml =
+  proc newDcml*( iEntier: uint8 ; iScale : uint8; nullable : bool =true ): Dcml =
     ## Initialize a empty Dcml
   
     if iEntier + iScale  > cMaxDigit or ( iEntier == 0 and iScale == 0 ):

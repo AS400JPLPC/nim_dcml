@@ -1,4 +1,3 @@
-
 /*
  *
  * Auto generated for https://github.com/status-im/nim-decimal

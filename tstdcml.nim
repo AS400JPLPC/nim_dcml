@@ -1,7 +1,6 @@
 import dcml
 import strformat
 
-
 var a = newDcml(10,2)
 
 var aa = newDcml(8,2)

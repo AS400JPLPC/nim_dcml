@@ -2,6 +2,7 @@ import db_sqlite, math
 import strformat
 import zoned
 import dcml
+
 let db = open("mytest.db", "", "", "")
 
 db.exec(sql"DROP TABLE IF EXISTS my_table")
