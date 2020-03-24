@@ -1,4 +1,4 @@
-import dcml/dcml
+import dcml
 import strformat
 
 
@@ -193,10 +193,10 @@ c.minus()
 echo fmt" c.minus() {$c}"
 
 echo ""
-echo fmt" test delete (a)  a =nil "
+echo fmt" test delete (a)"
 a =nil
 echo ""
-echo fmt" redefinition var (a)  mauvais coding  only test  a = newDcml(10,2)"
+echo fmt" redefinition var (a)  mauvais coding  only test "
 a = newDcml(10,2)
 a:=10
 
@@ -375,3 +375,12 @@ benefice.eval("=" , $gainUnite ,  "*" ,$nbrArticle , "-", $prixAchat )
 echo fmt"benefice effet de masse  gainUnite: {$gainUnite}   * nbrArticle: {$nbrArticle }  - prixAchat: {$prixAchat} benefice= {$benefice}"
 
 echo "fin"
+
+b:=0
+a:=10
+echo fmt"{a}*={b}"
+try :
+  a/=b
+  echo fmt"a*=b {$a}"
+except:
+  echo getCurrentExceptionMsg()

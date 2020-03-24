@@ -1,7 +1,7 @@
 import db_sqlite, math
 import strformat
-import Zoned
-import dcml/dcml
+import zoned
+import dcml
 let db = open("mytest.db", "", "", "")
 
 db.exec(sql"DROP TABLE IF EXISTS my_table")
@@ -14,7 +14,7 @@ db.exec(sql"""CREATE TABLE my_table (
 var f = newDcml(18,10)
 
 db.exec(sql"BEGIN")
-for i in 1..1000:
+for i in 9000..9100:
   f.eval("=",i , "+" ,1 , "/" ,7.2)
   db.exec(sql"INSERT INTO my_table (name, i, f) VALUES (?, ?, ?)",
           "Item#" & $i, i, $f)
@@ -33,4 +33,5 @@ echo "Inserted item: ", db.getValue(sql"SELECT name FROM my_table WHERE id=?", i
 for row in db.fastRows(sql"SELECT  f, name , id , i FROM my_table"):
   f:= row[0]
   echo  row[1] , "  ",  row[2] ," ",row[3] , "   ", $f
+
 db.close()

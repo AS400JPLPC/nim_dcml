@@ -465,13 +465,16 @@ mpd_uint_zero(mpd_uint_t *dest, mpd_size_t len)
 ALWAYS_INLINE void
 mpd_del(mpd_t *dec)
 {
-    if (mpd_isdynamic_data(dec)) {
+   if (mpd_isdynamic_data(dec)) {
         mpd_free(dec->data);
     }
     if (mpd_isdynamic(dec)) {
         mpd_free(dec);
     }
+
+
 }
+
 
 /*
  * Resize the coefficient. Existing data up to 'nwords' is left untouched.

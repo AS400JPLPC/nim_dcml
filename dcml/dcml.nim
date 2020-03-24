@@ -7,9 +7,13 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import dcml_lowlevel
-import strformat
-from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat,delete
-import typeinfo
+when not declared(strformat) :
+  import strformat
+
+when not declared(typeinfo) :
+  import typeinfo
+
+from strutils import Digits, parseInt,replace , repeat , isDigit ,formatFloat,delete , align
 
 when not declared(Dcml) :
 
@@ -30,7 +34,7 @@ when not declared(Dcml) :
   
   #@@@@@@@@@@@@@@@@@@
   #------------------
-  let cMaxDigit : uint8 = 38
+  let cMaxDigit : uint8 = 34
   
   proc Valide*(a: Dcml)
   proc Rtrim*(a: Dcml)
@@ -50,7 +54,7 @@ when not declared(Dcml) :
   ## BORNAGE POUR LA GESTION compta : stock etc....
   #----------------------------------------------------  
   
-  proc newDcml*( iEntier: uint8 ; iScale : uint8 ): Dcml =
+  proc newDcml*( iEntier: uint8 ; iScale : uint8; nullable : bool ): Dcml =
     ## Initialize a empty Dcml
   
     if iEntier + iScale  > cMaxDigit or ( iEntier == 0 and iScale == 0 ):
@@ -67,12 +71,13 @@ when not declared(Dcml) :
     r.entier = iEntier
     r.scale  = iScale
     mpd_set_string(r[], "0", CTX_ADDR)
+    r.nullable = nullable
     return r
 
 
 
   proc `$`*(a: Dcml): string =
-      ## Convert Dcml to string for SQL format
+      ## Convert Dcml to string for echo
       a.Valide()
       $mpd_to_sci(a[], 0)
   
@@ -87,10 +92,15 @@ when not declared(Dcml) :
     if s[0].isDigit == true : return fmt"+{s}"
     else: return fmt"{s}"
   
-  
-  
-  
-  
+  proc align*(a: Dcml,len : int): string = 
+    var s: string = $mpd_to_sci(a[], 0)
+    return align(s,len)
+
+  proc alignsigned*(a: Dcml,len : int): string = 
+    var s: string = $mpd_to_sci(a[], 0)
+    if s[0].isDigit == true : s = fmt"+{s}"
+    return align(s,len)
+
   proc clone*(a: Dcml): Dcml =
     ## Clone a Dcml and returns a new independent one
     var status: uint32
@@ -102,11 +112,13 @@ when not declared(Dcml) :
       raise newException(DcmlError, "Decimal failed to copy")
     r.entier = a.entier
     r.scale  = a.scale
+    r.nullable  = a.nullable
     return r
   
   
-  
-  
+  proc isBool*(a: Dcml): bool =
+    if a.nullable == true : return true
+    else : return false
   
   
   # Operators  := + - * / ^ //
@@ -157,7 +169,7 @@ when not declared(Dcml) :
         raise newException(DcmlError, "Failed opération :=")
     a := b
   
-  proc `:=`*(a : Dcml, x:string) =
+  proc `:=`*(a : Dcml, x:string)  =
     var sVal:string = x
     #test par defaut
     if (sVal == "" or sVal=="0" ) :  
@@ -167,15 +179,10 @@ when not declared(Dcml) :
       sVal = sVal.replace(".","" )
       if sVal.isDigit() == false :  
         raise newException(DcmlError, "Decimal failed to newDecimal(String)")
-    sVal = x
     mpd_set_string(a[], sVal, CTX_ADDR)
     a.Rjust()
-  
-  
-  
-  
-  
-  
+
+
   proc `+=`*(a, b: Dcml)=
     var status: uint32
     mpd_qadd(a[], a[], b[], CTX_ADDR, addr status)
@@ -326,7 +333,15 @@ when not declared(Dcml) :
   proc `/=`*(a, b: Dcml) =
     ## DIV decimal from X
     var status: uint32
-    mpd_qdiv(a[], a[], b[], CTX_ADDR, addr status)
+    var x:Dcml
+    new x, deleteDecimal
+    x[] = mpd_qnew()
+    x:=0
+    let cmp = mpd_qcmp(b[], x[], addr status)
+    if (cmp == 0) :
+      raise newException(DcmlError, fmt"Failed Operation : DIV {a} / {b} ")
+    else :
+      mpd_qdiv(a[], a[], b[], CTX_ADDR, addr status)
   
   template `/=`*[T: SomeNumber](a: Dcml, x: T)=
     var n = x
