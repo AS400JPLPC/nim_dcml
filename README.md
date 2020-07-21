@@ -20,14 +20,12 @@
 - contrôle import
 - 2019/12/11 correctif ligne 458 dcml.nim  (erreur ??? VsCode) regénération et commit depot
 
-- reste à faire
-
-  1 . manque format-edition à faire    Decimal.EditCode(fr/us):string  ex 1 234.25 or 1.234,25 
-
-  2 . à tester en situation interactive voir treeview.nim
+- 2020/07/21 correctif ajout proc isStringDigit*(str: string) 
 
 
-- début test avec 2019/11/21 treeview.nim   encours  avec pratique Dcml (voir projet NIM_etudes)
+
+
+
 
 
 
@@ -85,7 +83,8 @@ tous les calculs ce font en valeur étendue seul la fonction Valide formaté
   Round ( arrondi)
   
   isErr
-
+  
+isStringDigit*(str: string)
 
 
 - reslutats tstdcml.nim
