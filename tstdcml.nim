@@ -60,6 +60,8 @@ var Fl : float = 10.1234
 echo fmt"a := Fl"
 echo name(type(Fl))
 a := Fl
+
+echo a.entier ,"  ", a.scale
 echo fmt"float = 10.1234  {$a}"
 a.Rtrim
 echo fmt"a.Rtrim {$a}"

@@ -26,11 +26,6 @@ when not declared(Dcml) :
     Dcml* = ref[ptr mpd_t]
     DcmlError* = object of Exception
   
-  #const
-    #DEFAULT_PREC = MPD_RDIGITS * 2
-    #DEFAULT_EMAX = when (sizeof(int) == 8): 999999999999999999 else: 425000000
-    #DEFAULT_EMIN = when (sizeof(int) == 8): -999999999999999999 else: -425000000
-  
   
   
   var CTX: mpd_context_t
@@ -40,7 +35,8 @@ when not declared(Dcml) :
   #@@@@@@@@@@@@@@@@@@
   #------------------
   let cMaxDigit : uint8 = 34
-  
+  let cMinDigit : uint8 = 1
+
   proc Valide*(a: Dcml)
   proc Rtrim*(a: Dcml)
   proc Round*(a: Dcml; iScale:int )
@@ -333,12 +329,11 @@ when not declared(Dcml) :
     var status: uint32
     var x = new Dcml
     x[] = mpd_qnew()
-
-    x := "0"
+    mpd_qset_string(x[], "0", CTX_ADDR, addr status)
     let cmp = mpd_qcmp(b[], x[], addr status)
     if (cmp == 0) :
       raise newException(DcmlError, fmt"Failed Operation : DIV {a} / {b} ")
-    else :
+    else : 
       mpd_qdiv(a[], a[], b[], CTX_ADDR, addr status)
   
   template `/=`*[T: SomeNumber](a: Dcml, x: T)=
@@ -347,7 +342,6 @@ when not declared(Dcml) :
     var b = new Dcml
     b[] = mpd_qnew()
 
-    
     case name(type(n)) :
       of "int8" , "int16" ,"int32" :
         mpd_set_i32(b[], int32(x), CTX_ADDR)
@@ -377,7 +371,7 @@ when not declared(Dcml) :
         var s: string = formatFloat(float(n)) 
         mpd_set_string(b[], s, CTX_ADDR)
       else :
-        raise newException(DcmlError, "Failed opération /")
+        raise newException(DcmlError, "Failed opération //")
     a /= b
   
   
@@ -387,6 +381,13 @@ when not declared(Dcml) :
   proc `//=`*(a, b: Dcml)=
     ## DIVINTEGER  decimal from X
     var status: uint32
+    var x = new Dcml
+    x[] = mpd_qnew()
+    mpd_qset_string(x[], "0", CTX_ADDR, addr status)
+    let cmp = mpd_qcmp(b[], x[], addr status)
+    if (cmp == 0) :
+      raise newException(DcmlError, fmt"Failed Operation : DIVINTEGER {a} / {b} ")
+
     mpd_qdivint(a[], a[], b[], CTX_ADDR, addr status)
   
   
@@ -991,7 +992,7 @@ when not declared(Dcml) :
   
   
   proc Rtrim*(a: Dcml) =
-    if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
+    if (a.entier + a.scale) > cMaxDigit or (a.entier + a.scale) < cMinDigit :
       raise newException(DcmlError, fmt"Failed Init : Rtrim value:{$mpd_to_sci(a[], 0)}")
     ## trailing zeros removed
     var r = new Dcml
@@ -1094,7 +1095,7 @@ when not declared(Dcml) :
   #---------------------------------------
   
   proc isErr*(a: Dcml):bool =
-    if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
+    if (a.entier + a.scale) > cMaxDigit or (a.entier + a.scale) < cMinDigit :
       raise newException(DcmlError, fmt"Failed Init : isErr value:{$mpd_to_sci(a[], 0)}")
     ## contrôle dépassement capacité
     var r = new Dcml
@@ -1132,8 +1133,10 @@ when not declared(Dcml) :
   # alustement rigth zeros
   #---------------------------------------
   proc Rjust*(a: Dcml)=
-  #  if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
-  #    raise newException(DcmlError, fmt"Failed Init : Rjust value:{$mpd_to_sci(a[], 0)}")
+    if (a.entier + a.scale) > cMaxDigit or (a.entier + a.scale) < cMinDigit :
+      raise newException(DcmlError, fmt"Failed Init : Rjust value:{$mpd_to_sci(a[], 0)}")
+
+
     let padding = '0'
   
     var iScale:int = int(a.scale)
@@ -1196,7 +1199,7 @@ when not declared(Dcml) :
   
   proc Valide*(a: Dcml) =
     ## controle dépassement capacité
-    if (a.entier + a.scale) > cMaxDigit or (a.entier == uint8(0) and a.scale == uint8(0)) :
+    if (a.entier + a.scale) > cMaxDigit or (a.entier + a.scale) < cMinDigit :
       raise newException(DcmlError, fmt"Failed Init : Valide value:{$mpd_to_sci(a[], 0)}")
     var status: uint32
     var CTXN: mpd_context_t
@@ -1212,11 +1215,11 @@ when not declared(Dcml) :
   
     var i :int 
     var r = new Dcml
-    r[] = mpd_qnew()
+
     # control partie entiere
-  
+    r = clone(a)
     r.floor(a)
-  
+
     sEntier= $mpd_to_sci(r[], 0)
     sEntier = sEntier.replace("+","" )
     sEntier = sEntier.replace("-","" )
@@ -1240,11 +1243,8 @@ when not declared(Dcml) :
         mpd_set_string(r[], sEntier, CTX_ADDR)
       else :
         mpd_copy_data(r[],a[],addr status)
-        for i in 1..iScale :
-          r*=10
+        for i in 1..iScale : r *= 10
         r.truncate()
-        for i in 1..iScale :
-          r/=10
-    
+        for i in 1..iScale : r /= 10
     mpd_copy_data(a[],r[],addr status)
     a.Rjust()

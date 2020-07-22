@@ -22,9 +22,9 @@
 
 - 2020/07/21 correctif ajout proc isStringDigit*(str: string) 
 
+- 2020/07/22 correctif important lier à --gc:arc  + divers conséquence
 
-
-
+- 2020/07/22 correctif remove typeinfo use typetraits 
 
 
 

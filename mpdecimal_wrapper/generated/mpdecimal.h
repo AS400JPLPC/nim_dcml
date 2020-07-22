@@ -357,7 +357,7 @@ typedef struct mpd_t {
     mpd_uint_t *data;
     uint8_t entier;    /* ---> specifique partie Entière */
     uint8_t scale;     /* ---> specifique partie non Entière */
-    uint8_t nullable;     /* ---> specifique sql */
+    uint8_t nullable;  /* ---> specifique sql */
 } mpd_t;
 
 
